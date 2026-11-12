@@ -2,101 +2,106 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>DATinder – le Tinder des data centers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f7f8fc;--card:#fff;--ink:#1c2026;--mute:#7c8491;--line:rgba(28,32,38,.09);
-  --panel:#ffffff;--pink:#fd267a;--orange:#ff6036;--green:#21d07a;--red:#ff4458;--blue:#2ab6ff;
-  --shadow:0 14px 36px rgba(16,22,34,.16);
+  --bg:#f5f6fa;--card:#ffffff;--ink:#191c24;--mute:#6e7685;--line:rgba(25,28,36,.09);
+  --panel:rgba(255,255,255,.88);--panel-solid:#ffffff;--chip:#f0f2f7;
+  --pink:#fd267a;--orange:#ff6036;--gold:#e5b548;--green:#21d07a;--red:#ff4458;--blue:#2ab6ff;
+  --grad:linear-gradient(135deg,#fd267a 0%,#ff6036 100%);
+  --shadow:0 18px 44px rgba(17,20,30,.12);
   color-scheme:light;box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0b0d12;--card:#181d25;--ink:#f3f5f8;--mute:#9aa3ad;--line:rgba(255,255,255,.09);
-    --panel:#151921;--shadow:0 18px 44px rgba(0,0,0,.48);color-scheme:dark
+    --bg:#0b0c10;--card:#161922;--ink:#f4f6fb;--mute:#939ba8;--line:rgba(255,255,255,.09);
+    --panel:rgba(21,24,33,.84);--panel-solid:#171a24;--chip:#1f2330;
+    --shadow:0 22px 54px rgba(0,0,0,.55);color-scheme:dark
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0b0d12;--card:#181d25;--ink:#f3f5f8;--mute:#9aa3ad;--line:rgba(255,255,255,.09);
-  --panel:#151921;--shadow:0 18px 44px rgba(0,0,0,.48);color-scheme:dark
+  --bg:#0b0c10;--card:#161922;--ink:#f4f6fb;--mute:#939ba8;--line:rgba(255,255,255,.09);
+  --panel:rgba(21,24,33,.84);--panel-solid:#171a24;--chip:#1f2330;
+  --shadow:0 22px 54px rgba(0,0,0,.55);color-scheme:dark
 }
 *{box-sizing:border-box}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
   height:100%;margin:0;background:var(--bg);color:var(--ink);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  overflow:hidden;position:relative;
-  background-image:radial-gradient(rgba(128,128,128,.12) 1px,transparent 1px);
-  background-size:22px 22px
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overflow:hidden;position:relative
 }
-body::before,body::after,.aura{
-  content:"";position:fixed;border-radius:50%;filter:blur(95px);opacity:.22;z-index:-1;pointer-events:none;
+body::before,body::after{
+  content:"";position:fixed;border-radius:50%;filter:blur(110px);opacity:.22;z-index:0;pointer-events:none;
   animation:drift 16s ease-in-out infinite alternate
 }
-body::before{width:62vmax;height:62vmax;background:var(--pink);top:-26vmax;left:-20vmax}
-body::after{width:62vmax;height:62vmax;background:var(--orange);bottom:-30vmax;right:-20vmax;animation-delay:-8s}
-.aura{width:42vmax;height:42vmax;background:var(--blue);top:35%;left:30%;opacity:.1;animation-duration:22s}
-@keyframes drift{to{transform:translate(7vmax,5vmax) scale(1.14)}}
+body::before{width:58vmax;height:58vmax;background:var(--pink);top:-24vmax;left:-18vmax}
+body::after{width:58vmax;height:58vmax;background:var(--orange);bottom:-28vmax;right:-18vmax;animation-delay:-8s}
+@keyframes drift{to{transform:translate(6vmax,5vmax) scale(1.12)}}
 
-#app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:8px 14px 14px}
-#app.wide{max-width:1260px}
+#app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:10px 14px 14px;position:relative;z-index:1}
+#app.wide{max-width:1320px}
 
-header{display:flex;align-items:center;justify-content:center;position:relative;padding:4px 0 12px;min-height:42px}
+header{display:flex;align-items:center;justify-content:center;position:relative;padding:2px 0 12px;min-height:44px}
 .logo{
-  font-weight:900;font-size:34px;letter-spacing:-1.5px;
-  background:linear-gradient(90deg,var(--pink),var(--orange));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-weight:800;font-size:33px;letter-spacing:-1.4px;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
   display:flex;align-items:center;gap:6px;user-select:none;
-  filter:drop-shadow(0 4px 14px rgba(253,38,122,.35))
+  filter:drop-shadow(0 4px 16px rgba(253,38,122,.28))
 }
 .logo i{font-style:normal;display:inline-block;-webkit-text-fill-color:initial;animation:beat 1.7s ease-in-out infinite}
-@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.24) rotate(-6deg)}30%{transform:scale(1)}}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22) rotate(-6deg)}30%{transform:scale(1)}}
 
 .top-r{position:absolute;right:2px;display:flex;align-items:center;gap:8px}
 .cnt{
   font-size:13px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;
-  background:color-mix(in srgb,var(--panel) 84%,transparent);backdrop-filter:blur(12px);
-  border:1px solid var(--line);padding:4px 11px;border-radius:99px
+  background:var(--panel);backdrop-filter:blur(14px);
+  border:1px solid var(--line);padding:5px 12px;border-radius:99px;
+  display:inline-flex;align-items:center;gap:6px
 }
 .cnt:empty{display:none}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block}
 .tbtn{
-  width:32px;height:32px;border-radius:50%;border:1px solid var(--line);
-  background:color-mix(in srgb,var(--panel) 84%,transparent);backdrop-filter:blur(12px);
-  color:var(--ink);font-size:14px;display:grid;place-items:center;cursor:pointer;
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+  background:var(--panel);backdrop-filter:blur(14px);
+  color:var(--ink);font-size:15px;display:grid;place-items:center;cursor:pointer;
   transition:transform .2s cubic-bezier(.2,1.5,.4,1)
 }
-.tbtn:hover{transform:scale(1.12) rotate(12deg)}
+.tbtn:hover{transform:scale(1.1) rotate(12deg)}
 
 #main{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;position:relative}
 
-/* Carte Profil */
+/* Carte Profil Tinder */
 .card{
   position:relative;flex:1;min-height:0;border-radius:24px;overflow:hidden;
-  box-shadow:0 26px 60px -14px rgba(0,0,0,.48),inset 0 0 0 1.5px rgba(255,255,255,.16);
+  box-shadow:0 26px 60px -14px rgba(0,0,0,.52),inset 0 0 0 1px rgba(255,255,255,.16);
   touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
-  animation:pop .5s cubic-bezier(.2,1.3,.4,1) both;will-change:transform
+  animation:pop .48s cubic-bezier(.2,1.3,.4,1) both;will-change:transform
 }
 .card:active{cursor:grabbing}
-@keyframes pop{from{transform:translateY(26px) scale(.93);opacity:0}}
+@keyframes pop{from{transform:translateY(24px) scale(.94);opacity:0}}
 .card::before{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.26) 50%,transparent 62%);
+  background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.24) 50%,transparent 62%);
   transform:translateX(-100%);animation:shine 5.5s ease-in-out infinite;z-index:1;pointer-events:none
 }
 @keyframes shine{35%,100%{transform:translateX(100%)}}
 .card::after{
   content:"";position:absolute;inset:0;
-  background:radial-gradient(circle at 28% 14%,rgba(255,255,255,.32),transparent 56%);pointer-events:none
+  background:radial-gradient(circle at 28% 14%,rgba(255,255,255,.28),transparent 56%);pointer-events:none
 }
 
-.orb{position:absolute;border-radius:50%;background:rgba(255,255,255,.13);animation:float 6s ease-in-out infinite;pointer-events:none}
+.orb{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);animation:float 6s ease-in-out infinite;pointer-events:none}
 .orb.a{width:56%;aspect-ratio:1;top:-11%;right:-16%}
 .orb.b{width:36%;aspect-ratio:1;top:30%;left:-11%;animation-delay:-3s}
 
 .seg{position:absolute;top:11px;left:12px;right:12px;display:flex;gap:5px;z-index:2;pointer-events:none}
-.seg i{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.32);transition:background .3s}
+.seg i{flex:1;height:3.5px;border-radius:99px;background:rgba(255,255,255,.32);transition:background .3s}
 .seg i.past{background:rgba(255,255,255,.68)}
-.seg i.on{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.8)}
+.seg i.on{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.85)}
 
 .emo{
   position:absolute;inset:0 0 38% 0;display:grid;place-items:center;
@@ -104,56 +109,56 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
   animation:float 4s ease-in-out infinite;pointer-events:none
 }
 .emo::before{
-  content:"";position:absolute;left:50%;top:50%;width:68%;aspect-ratio:1;
+  content:"";position:absolute;left:50%;top:50%;width:66%;aspect-ratio:1;
   transform:translate(-50%,-50%);border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.48),transparent 70%);z-index:-1
+  background:radial-gradient(circle,rgba(255,255,255,.46),transparent 70%);z-index:-1
 }
-@keyframes float{50%{transform:translateY(-13px) rotate(3deg)}}
+@keyframes float{50%{transform:translateY(-12px) rotate(3deg)}}
 
 .dist{
-  position:absolute;top:25px;left:14px;z-index:2;
-  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
-  backdrop-filter:blur(8px);color:#fff;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px
+  position:absolute;top:24px;left:14px;z-index:2;
+  background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.28);
+  backdrop-filter:blur(10px);color:#fff;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px
 }
 
 .info{
-  position:absolute;left:0;right:0;bottom:0;padding:64px 18px 17px;color:#fff;
-  background:linear-gradient(transparent,rgba(0,0,0,.68) 28%,rgba(0,0,0,.94) 70%);pointer-events:none
+  position:absolute;left:0;right:0;bottom:0;padding:64px 18px 18px;color:#fff;
+  background:linear-gradient(transparent,rgba(8,10,15,.72) 28%,rgba(8,10,15,.95) 72%);pointer-events:none
 }
-.info h2{margin:0;font-size:clamp(28px,4.8vh,40px);font-weight:700;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
-.info h2 span{font-weight:400;font-size:.7em;opacity:.92}
+.info h2{margin:0;font-size:clamp(28px,4.8vh,40px);font-weight:800;letter-spacing:-.6px;display:flex;align-items:center;gap:8px}
+.info h2 span{font-weight:500;font-size:.68em;opacity:.9}
 .vf{
   width:.62em;height:.62em;border-radius:50%;background:var(--blue);
   display:inline-grid;place-items:center;font-size:.48em;font-weight:800;
   box-shadow:0 2px 10px rgba(42,182,255,.65)
 }
-.loc{font-size:clamp(12px,1.9vh,15px);opacity:.88;margin:3px 0 9px}
-.info p{margin:0 0 11px;font-size:clamp(13px,2.1vh,16px);line-height:1.42;opacity:.94}
+.loc{font-size:clamp(12px,1.9vh,15px);opacity:.88;margin:3px 0 9px;font-weight:500}
+.info p{margin:0 0 11px;font-size:clamp(13px,2.1vh,15.5px);line-height:1.42;opacity:.94}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tags b{
-  font-weight:500;font-size:clamp(11px,1.75vh,13.5px);padding:5px 11px;
-  border:1px solid rgba(255,255,255,.35);border-radius:99px;
+  font-weight:600;font-size:clamp(11px,1.75vh,13px);padding:5px 11px;
+  border:1px solid rgba(255,255,255,.3);border-radius:99px;
   background:rgba(255,255,255,.14);backdrop-filter:blur(6px)
 }
 
-/* Tampons Swipe */
+/* Tampons Swipe Tinder */
 .st{
-  position:absolute;top:52px;font-size:34px;font-weight:900;padding:3px 14px;
+  position:absolute;top:52px;font-size:34px;font-weight:800;padding:3px 14px;
   border:4px solid;border-radius:12px;opacity:0;pointer-events:none;z-index:3;
-  letter-spacing:1px;background:rgba(0,0,0,.22);backdrop-filter:blur(4px)
+  letter-spacing:1.2px;background:rgba(0,0,0,.22);backdrop-filter:blur(4px)
 }
 .st.like{left:18px;color:#3be8a0;border-color:#3be8a0;transform:rotate(-14deg)}
 .st.nope{right:18px;color:#ff5c72;border-color:#ff5c72;transform:rotate(14deg)}
 .st.sup{left:50%;top:40%;transform:translateX(-50%) rotate(-6deg);color:var(--blue);border-color:var(--blue);font-size:28px;white-space:nowrap}
 
-/* Boutons d'action */
+/* Boutons d'action circulaires Tinder */
 .btns{display:flex;justify-content:center;align-items:center;gap:20px;padding:2px 0}
 .btns button{
-  width:clamp(58px,9.5vh,72px);height:clamp(58px,9.5vh,72px);border-radius:50%;border:2.5px solid;
-  background:var(--card);box-shadow:var(--shadow);font-size:clamp(24px,4vh,30px);font-weight:800;
+  width:clamp(58px,9.5vh,72px);height:clamp(58px,9.5vh,72px);border-radius:50%;border:2px solid;
+  background:var(--panel-solid);box-shadow:0 10px 26px rgba(0,0,0,.22);font-size:clamp(24px,4vh,30px);font-weight:800;
   cursor:pointer;transition:transform .18s cubic-bezier(.2,1.5,.4,1),box-shadow .18s,background .18s,color .18s
 }
-.btns button:hover{transform:scale(1.12) translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.28)}
+.btns button:hover{transform:scale(1.12) translateY(-3px);box-shadow:0 16px 32px rgba(0,0,0,.32)}
 .btns button:active{transform:scale(.9)}
 .btns .sm{width:clamp(46px,7.2vh,56px);height:clamp(46px,7.2vh,56px);font-size:clamp(20px,3.2vh,25px)}
 #bl:hover{background:var(--green);color:#fff!important}
@@ -161,44 +166,49 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
 #bs:hover{background:var(--blue);color:#fff!important}
 button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
-/* Panneaux Glassmorphism */
-.panel,.side{
-  background:color-mix(in srgb,var(--panel) 82%,transparent);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+/* Surfaces vitrées Tinder */
+.panel,.side,.box{
+  background:var(--panel);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
   border:1px solid var(--line);
-  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.22)
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.14)
 }
-.panel{flex:1;min-height:0;overflow:auto;border-radius:24px;padding:20px;animation:pop .4s both}
-.who{color:var(--mute);font-size:14.5px;margin-bottom:10px;line-height:1.4}
+.panel{flex:1;min-height:0;overflow:auto;border-radius:26px;padding:22px;animation:pop .4s both}
+.who{color:var(--mute);font-size:14.5px;margin-bottom:10px;line-height:1.45}
 
 .badge-end{
   display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;
   padding:6px 14px;border-radius:99px;font-size:13px;font-weight:700;
-  color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28)
+  color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28);
+  animation:pop .35s both
 }
 
 .go{
-  border:0;border-radius:99px;padding:15px 18px;font-size:17px;font-weight:700;color:#fff;
+  border:0;border-radius:99px;padding:15px 22px;font-size:16.5px;font-weight:700;color:#fff;
   background:linear-gradient(90deg,var(--pink),var(--orange),var(--pink));
-  background-size:200% 100%;animation:sheen 4s linear infinite;letter-spacing:.3px;
-  cursor:pointer;width:100%;margin-top:10px;box-shadow:0 10px 24px rgba(253,38,122,.34);
+  background-size:200% 100%;animation:sheen 4s linear infinite;letter-spacing:.2px;
+  cursor:pointer;width:100%;margin-top:10px;box-shadow:0 10px 26px rgba(253,38,122,.34);
   transition:transform .18s cubic-bezier(.2,1.5,.4,1),box-shadow .18s
 }
 @keyframes sheen{to{background-position:200% 0}}
-.go:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 14px 30px rgba(253,38,122,.44)}
+.go:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 14px 32px rgba(253,38,122,.46)}
 .go:active{transform:scale(.97)}
-.go.g2{background:var(--card);color:var(--ink);border:1.5px solid var(--line);box-shadow:none;animation:none}
+.go.g2{
+  background:var(--chip);color:var(--ink);border:1px solid var(--line);
+  box-shadow:none;animation:none
+}
+.go.g2:hover{background:var(--panel-solid)}
 
 .hero{text-align:center;display:flex;flex-direction:column;justify-content:center}
 .hero .big{display:grid;place-items:center;margin:0 auto 16px;font-size:0}
 .hero .big i{
-  width:94px;height:94px;border-radius:50%;
-  background:linear-gradient(135deg,var(--pink),var(--orange));
+  width:90px;height:90px;border-radius:50%;
+  background:var(--grad);
   animation:ring 2.2s infinite;display:grid;place-items:center;
-  font-style:normal;font-size:40px;color:#fff;box-shadow:0 10px 26px rgba(253,38,122,.38)
+  font-style:normal;font-size:38px;color:#fff;box-shadow:0 10px 26px rgba(253,38,122,.38)
 }
-@keyframes ring{0%{box-shadow:0 0 0 0 rgba(253,38,122,.5)}70%,100%{box-shadow:0 0 0 36px rgba(253,38,122,0)}}
-.hero h1{margin:6px 0;font-size:clamp(26px,4.8vh,38px);line-height:1.12;letter-spacing:-.5px}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(253,38,122,.48)}70%,100%{box-shadow:0 0 0 34px rgba(253,38,122,0)}}
+.hero h1{margin:6px 0;font-size:clamp(25px,4.6vh,36px);font-weight:800;line-height:1.14;letter-spacing:-.6px}
 
 /* Grille Match Parfait */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}
@@ -209,101 +219,206 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 }
 .tile:hover{transform:scale(1.05) rotate(-1deg)}
 .tile:active{transform:scale(.95)}
-.tile span{display:block;font-size:40px;margin-bottom:4px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.tile span{display:block;font-size:38px;margin-bottom:4px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
 
 /* Écran It's a Match */
 .match{
-  position:relative;overflow:hidden;text-align:center;color:#fff;border-radius:20px;
+  position:relative;overflow:hidden;text-align:center;color:#fff;border-radius:22px;
   padding:24px 16px;margin-bottom:12px;
-  background:linear-gradient(135deg,var(--pink),var(--orange));
+  background:var(--grad);
   box-shadow:0 14px 34px rgba(253,38,122,.35)
 }
-.match h1{margin:0 0 6px;font-size:clamp(34px,7vh,50px);font-style:italic;font-weight:900;animation:pulse 1.3s ease-in-out infinite}
+.match h1{margin:0 0 6px;font-size:clamp(34px,7vh,50px);font-style:italic;font-weight:800;animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{50%{transform:scale(1.06)}}
 .heart{position:absolute;bottom:-30px;animation:up 3.2s linear infinite;opacity:.85;pointer-events:none}
 @keyframes up{to{transform:translateY(-330px) rotate(40deg);opacity:0}}
 .av{display:flex;justify-content:center;margin:14px 0}
 .av span{
   width:84px;height:84px;border-radius:50%;background:#fff;display:grid;place-items:center;
-  font-size:44px;border:4px solid #fff;box-shadow:var(--shadow);animation:pop .6s both
+  font-size:44px;border:4px solid #fff;box-shadow:0 8px 20px rgba(0,0,0,.22);animation:pop .6s both
 }
 .av span+span{margin-left:-14px;animation-delay:.18s}
 .bub{
-  display:inline-block;background:#fff;color:#21262e;border-radius:18px;padding:11px 16px;
-  font-size:clamp(14px,2.2vh,17px);font-weight:500;max-width:92%;box-shadow:0 6px 18px rgba(0,0,0,.14)
+  display:inline-block;background:#fff;color:#191c24;border-radius:18px;padding:11px 16px;
+  font-size:clamp(14px,2.2vh,16.5px);font-weight:600;max-width:92%;box-shadow:0 6px 18px rgba(0,0,0,.14)
 }
 
 input{
-  width:100%;padding:13px 14px;border-radius:14px;border:1.5px solid var(--line);
-  background:var(--card);color:var(--ink);font-size:17px;font-weight:600;margin:8px 0;text-align:center;
-  transition:border-color .2s,box-shadow .2s
+  width:100%;padding:14px 16px;border-radius:99px;border:1.5px solid var(--line);
+  background:var(--chip);color:var(--ink);font-size:17px;font-weight:700;margin:8px 0;text-align:center;
+  transition:border-color .2s,box-shadow .2s,background .2s
 }
-input:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 4px rgba(253,38,122,.14)}
+input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);box-shadow:0 0 0 4px rgba(253,38,122,.16)}
 
-/* Tableau Présentateur */
-.board{flex:1;min-height:0;display:flex;gap:22px}
-.board>.card{flex:0 0 min(36vw,405px);cursor:default}
-.side{flex:1;min-width:0;overflow:auto;border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:11px;animation:pop .4s both}
-.side h2{
-  margin:0;font-size:clamp(22px,4.1vh,38px);letter-spacing:-.5px;
-  background:linear-gradient(90deg,var(--pink),var(--orange));
-  -webkit-background-clip:text;background-clip:text;color:transparent
+/* =========================================================
+   LOBBY PRÉSENTATEUR : ZERO ESPACE VIDE + DESIGN TINDER VIP
+   ========================================================= */
+.lobby-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(290px,350px) 1fr;gap:18px}
+.qr-col{
+  border-radius:26px;padding:20px;display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;gap:12px;animation:pop .4s both
+}
+.live-pill{
+  display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:99px;
+  font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28)
 }
 .qr-wrap{
-  padding:5px;border-radius:20px;background:linear-gradient(135deg,var(--pink),var(--orange));
-  box-shadow:0 14px 32px rgba(253,38,122,.24);animation:pop .55s both
+  padding:6px;border-radius:22px;background:var(--grad);
+  box-shadow:0 16px 36px rgba(253,38,122,.28);width:min(100%,255px)
 }
-.qr{width:min(42vh,280px);background:#fff;border-radius:16px;padding:10px;display:block}
+.qr{width:100%;background:#fff;border-radius:17px;padding:12px;display:block}
 .qr svg{display:block;width:100%;height:auto}
 .link-row{display:flex;gap:6px;width:100%;align-items:center}
-.lk{font-size:12px;padding:8px 10px;margin:0;flex:1;min-width:0}
+.lk{font-size:12px;padding:9px 12px;margin:0;flex:1;min-width:0;font-weight:600}
 .cp{
-  border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;
-  padding:8px 11px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
-  transition:transform .15s
+  border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;
+  padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:transform .15s,background .15s
 }
-.cp:hover{transform:scale(1.05)}
+.cp:hover{transform:scale(1.06);background:var(--panel-solid)}
+.steps{
+  width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  padding-top:8px;border-top:1px solid var(--line);text-align:center
+}
+.steps div{
+  background:var(--chip);border-radius:14px;padding:8px 4px;font-size:11.5px;font-weight:700;color:var(--mute)
+}
+.steps span{display:block;font-size:18px;margin-bottom:2px}
 
+.lobby-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
+.players-box{
+  flex:1;min-height:0;border-radius:26px;padding:20px 22px;display:flex;flex-direction:column;gap:12px;
+  overflow:auto;animation:pop .44s both
+}
+.l-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.l-head h2{
+  margin:0;font-size:clamp(22px,3.4vh,32px);font-weight:800;letter-spacing:-.5px;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
+}
+.l-sub{color:var(--mute);font-size:14px;margin:2px 0 0;font-weight:500}
+.count-badge{
+  padding:8px 16px;border-radius:99px;font-size:14px;font-weight:800;color:#fff;
+  background:var(--grad);box-shadow:0 8px 20px rgba(253,38,122,.28);
+  display:inline-flex;align-items:center;gap:8px
+}
+
+/* Radar Tinder quand la salle est vide */
+.radar-zone{
+  flex:1;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;padding:10px
+}
+.radar{
+  position:relative;width:96px;height:96px;display:grid;place-items:center;margin-bottom:14px
+}
+.radar span{
+  position:absolute;inset:0;border-radius:50%;border:2px solid rgba(253,38,122,.45);
+  background:radial-gradient(circle,rgba(253,38,122,.14),transparent 70%);
+  animation:sonar 2.8s cubic-bezier(.15,.7,.35,1) infinite
+}
+.radar span:nth-child(2){animation-delay:.9s}
+.radar span:nth-child(3){animation-delay:1.8s}
+@keyframes sonar{
+  0%{transform:scale(.65);opacity:.9}
+  100%{transform:scale(2.1);opacity:0}
+}
+.radar b{
+  position:relative;z-index:2;width:62px;height:62px;border-radius:50%;background:var(--grad);
+  display:grid;place-items:center;font-size:28px;color:#fff;
+  box-shadow:0 10px 26px rgba(253,38,122,.42)
+}
+.radar-zone p{margin:0;font-size:15px;font-weight:700;color:var(--ink)}
+.radar-zone small{color:var(--mute);font-size:13px;margin-top:3px}
+
+/* Grille de joueurs connectés style Tinder */
+.p-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;
+  align-content:start;padding:2px 0
+}
+.p-card{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;
+  background:var(--chip);border:1px solid var(--line);
+  animation:pop .38s cubic-bezier(.2,1.5,.4,1) both
+}
+.p-av{
+  width:34px;height:34px;border-radius:50%;background:var(--grad);color:#fff;
+  font-weight:800;font-size:14px;display:grid;place-items:center;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(253,38,122,.3)
+}
+.p-nm{font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Aperçu des 6 profils dans le lobby */
+.deck-box{border-radius:24px;padding:14px 18px 16px;animation:pop .5s both}
+.deck-lbl{
+  font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--mute);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between
+}
+.deck-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.mini-c{
+  border-radius:16px;padding:10px 8px;color:#fff;text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 8px 18px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.22);
+  transition:transform .2s cubic-bezier(.2,1.5,.4,1)
+}
+.mini-c:hover{transform:translateY(-4px) scale(1.03)}
+.mini-c i{font-style:normal;font-size:28px;display:block;margin-bottom:4px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+.mini-c b{display:block;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-c span{display:block;font-size:10.5px;opacity:.85;margin-top:1px}
+
+/* Tableau Vote / Stats / Podium */
+.board{flex:1;min-height:0;display:flex;gap:20px}
+.board>.card{flex:0 0 min(36vw,410px);cursor:default}
+.side{flex:1;min-width:0;overflow:auto;border-radius:26px;padding:24px;display:flex;flex-direction:column;gap:11px;animation:pop .4s both}
+.side h2{
+  margin:0;font-size:clamp(22px,4vh,36px);font-weight:800;letter-spacing:-.5px;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
+}
 .chips{display:flex;flex-wrap:wrap;gap:9px;align-content:flex-start}
 .chips b{
-  background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(90deg,var(--pink),var(--orange)) border-box;
+  background:linear-gradient(var(--panel-solid),var(--panel-solid)) padding-box,var(--grad) border-box;
   border:2px solid transparent;border-radius:99px;padding:7px 15px;
-  font-size:clamp(14px,2.3vh,19px);font-weight:600;animation:pop .4s both;
-  box-shadow:0 4px 12px rgba(0,0,0,.07);display:inline-flex;align-items:center;gap:6px
+  font-size:clamp(14px,2.2vh,18px);font-weight:700;animation:pop .4s both;
+  display:inline-flex;align-items:center;gap:6px
 }
-.bar{height:16px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar{height:16px;border-radius:99px;background:var(--chip);overflow:hidden}
 .bar i{
   display:block;height:100%;border-radius:99px;transform-origin:left;
-  animation:grow .8s cubic-bezier(.2,1,.3,1) both;box-shadow:0 0 14px rgba(253,38,122,.4)
+  animation:grow .8s cubic-bezier(.2,1,.3,1) both;box-shadow:0 0 14px rgba(253,38,122,.35)
 }
 @keyframes grow{from{transform:scaleX(0)}}
-.row{display:flex;justify-content:space-between;font-size:clamp(16px,2.9vh,25px);font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
-.nm{font-size:clamp(13px,2.2vh,18px);color:var(--mute)}
-.ctl{display:flex;gap:10px;margin-top:auto;padding-top:8px}
+.row{display:flex;justify-content:space-between;font-size:clamp(16px,2.8vh,24px);font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums}
+.nm{font-size:clamp(13px,2.1vh,17px);color:var(--mute);font-weight:500}
+.ctl{display:flex;gap:12px;margin-top:auto;padding-top:6px}
 .ctl .go{margin:0}
-.note{font-size:12px;color:var(--mute);text-align:center;word-break:break-all;font-weight:600}
+.ctl .go.g2{flex:0 0 auto;width:auto;padding:15px 22px}
 
-/* Podium Final */
+/* Carte Gagnante Tinder Gold */
 .winner-box{
-  display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;
-  color:#fff;box-shadow:0 12px 28px rgba(0,0,0,.22);animation:pop .5s both
+  display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:20px;
+  color:#fff;border:2px solid rgba(255,215,100,.65);
+  box-shadow:0 14px 32px rgba(0,0,0,.28);animation:pop .5s both
 }
-.winner-box .we{font-size:46px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
-.winner-box h3{margin:0;font-size:22px}
-.winner-box p{margin:3px 0 0;font-size:13.5px;opacity:.92}
+.winner-box .we{font-size:50px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
+.winner-box h3{margin:0;font-size:22px;font-weight:800}
+.winner-box p{margin:4px 0 0;font-size:14px;opacity:.92}
 
 /* Confettis */
 .fx{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
 .fx i{position:absolute;top:-24px;font-style:normal;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(106vh) rotate(540deg);opacity:0}}
 
-@media (max-width:800px){.board{flex-direction:column}.board>.card{flex:0 0 40vh}}
+@media (max-width:960px){
+  .lobby-wrap{grid-template-columns:1fr;overflow:auto}
+  .deck-row{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:800px){
+  .board{flex-direction:column}
+  .board>.card{flex:0 0 40vh}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head><body>
-<div class="aura"></div>
 <div class="fx" id="fx"></div>
 <div id="app">
   <header>
@@ -329,7 +444,7 @@ const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const ne=s=>String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g,"$1").replace(/\s+/g," ").trim();
 const sid=()=>Math.random().toString(36).slice(2,8);
 
-let room=null,HOST=false,PS="",SES={mode:"lobby",i:0,sid:"0"},ph="intro",sw={},mk=null,peers=[],last="",JOIN="",CONNS=[],PRES={},MY={},NET=null,dragging=false,peerObj=null,hostId="",kickNotice="";
+let room=null,HOST=false,PS="",SES={mode:"lobby",i:0,sid:"0"},ph="intro",sw={},mk=null,peers=[],last="",JOIN="",CONNS=[],PRES={},MY={},NET=null,dragging=false,peerObj=null,hostId="",kickNotice="",connGen=0;
 const ok=["like","super","nope"];
 
 $("#th").onclick=()=>{
@@ -337,9 +452,9 @@ $("#th").onclick=()=>{
   document.documentElement.setAttribute("data-theme",cur==="dark"?"light":"dark");
 };
 
-function burst(list=["💘","🔥","✨","💖","🖥️"]){
+function burst(list=["💘","🔥","✨","💖","🏆"]){
   const fx=$("#fx");if(!fx)return;
-  for(let i=0;i<22;i++){
+  for(let i=0;i<24;i++){
     const el=document.createElement("i");
     el.textContent=list[i%list.length];
     el.style.left=(Math.random()*94+3)+"vw";
@@ -358,6 +473,11 @@ const tally=()=>{const s=pl(),k=SES.i,g=t=>s.filter(x=>vt(x,k)===t);return{like:
 const picks=()=>pl().filter(x=>typeof x.presence.k==="number");
 const names=a=>a.map(x=>esc(String(x.presence.name).slice(0,20))).join(", ")||"—";
 const chipsOf=a=>a.map((x,idx)=>`<b style="animation-delay:${idx*.05}s">🔥 ${esc(String(x.presence.name).slice(0,20))}</b>`).join("");
+const playerCards=a=>a.map((x,idx)=>{
+  const nm=String(x.presence.name).slice(0,20);
+  const ini=esc((nm[0]||"?").toUpperCase());
+  return`<div class="p-card" style="animation-delay:${idx*.04}s"><div class="p-av">${ini}</div><div class="p-nm">${esc(nm)}</div></div>`;
+}).join("");
 
 function qr(){
   try{
@@ -365,7 +485,7 @@ function qr(){
     const n=q.getModuleCount();let d="";
     for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+4} ${r+4}h1v1h-1z`;
     return`<svg viewBox="0 0 ${n+8} ${n+8}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code pour rejoindre"><path d="${d}" fill="#111"/></svg>`;
-  }catch(e){return`<div class="note">${esc(JOIN)}</div>`}
+  }catch(e){return`<div class="who">${esc(JOIN)}</div>`}
 }
 
 function cardHTML(p,live,idx=SES.i){
@@ -386,27 +506,38 @@ function cardHTML(p,live,idx=SES.i){
 }
 
 function set(h){if(dragging||h===last)return false;last=h;$("#main").innerHTML=h;return true}
-const hero=(icon,h,w)=>`<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w||""}</div></div>`;
+const hero=(icon,h,w,extra="")=>`<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w||""}</div>${extra}</div>`;
 
 function render(){
   HOST?board():phone();
-  $("#cnt").textContent=!HOST&&ph==="play"&&SES.mode==="vote"
-    ?(SES.i+1)+" / "+P.length
-    :HOST&&room?pl().length+" joueur"+(pl().length>1?"s":""):"";
+  const c=$("#cnt");
+  if(!HOST&&ph==="play"&&SES.mode==="vote"){
+    c.textContent=(SES.i+1)+" / "+P.length;
+  }else if(HOST&&room){
+    const n=pl().length;
+    c.innerHTML=`<span class="dot"></span>${n} joueur${n>1?"s":""}`;
+  }else{
+    c.textContent="";
+  }
 }
 
-/* ---- déconnexion façon Kahoot en fin de séance ---- */
+/* ---- déconnexion complète façon Kahoot en fin de séance ---- */
 function disconnectToIntro(msg){
-  kickNotice=msg||"🏁 Séance terminée !";
+  connGen++;
+  kickNotice=msg||"🏁 Séance terminée — Déconnecté de la salle";
   ph="intro";
   sw={};
   mk=null;
   MY={};
+  SES={mode:"lobby",i:0,sid:"0"};
   dragging=false;
   const oldNet=NET;
+  const oldPeer=peerObj;
   NET=null;
   room=null;
+  peerObj=null;
   if(oldNet){try{oldNet.close()}catch(_){}}
+  if(oldPeer){try{oldPeer.destroy()}catch(_){}}
   last="";
   render();
 }
@@ -415,19 +546,25 @@ function disconnectToIntro(msg){
 function phone(){
   if(ph==="intro"){
     const notice=kickNotice?`<div class="badge-end">${esc(kickNotice)}</div>`:"";
-    if(set(`<div class="panel hero">${notice}<div class="big"><i>🔥</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la séance.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre</button></div>`)){
+    const miniStrip=`<div style="display:flex;justify-content:center;gap:8px;margin-top:18px;font-size:24px;opacity:.9">${P.map(p=>`<span title="${p.n}">${p.e}</span>`).join("")}</div>`;
+    if(set(`<div class="panel hero">${notice}<div class="big"><i>🔥</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button>${miniStrip}</div>`)){
       $("#start").onclick=join;
-      const inp=$("#pz");if(inp)inp.focus();
+      const inp=$("#pz");
+      if(inp){
+        inp.focus();
+        inp.setSelectionRange(inp.value.length,inp.value.length);
+      }
     }
     return;
   }
   if(!room){set(hero("📡","Connexion…","Un instant, on te connecte à la salle."));return}
   const md=SES.mode;
   if(md==="lobby"){
-    set(hero("🎉","Tu es dans la salle, "+esc(PS),"La séance va commencer. Garde ton téléphone en main."));
+    const preview=`<div class="deck-row" style="grid-template-columns:repeat(3,1fr);margin-top:12px">${P.map(p=>`<div class="mini-c" style="background:linear-gradient(155deg,${p.g[0]},${p.g[1]})"><i>${p.e}</i><b>${p.n}</b></div>`).join("")}</div>`;
+    set(hero("🔥","Prêt à swiper, "+esc(PS),"La séance va démarrer. Garde ton téléphone en main !",preview));
   }
   else if(md==="vote"){
-    if(sw[SES.i])set(hero("✅","Vote enregistré","Regarde le tableau : on attend les autres."));
+    if(sw[SES.i])set(hero("✅","Swipe enregistré","Regarde l’écran principal en attendant les autres."));
     else if(set(cardHTML(P[SES.i],true)+`<div class="btns"><button aria-label="Passer" id="bn" style="color:var(--red);border-color:var(--red)">✕</button><button class="sm" aria-label="Super like" id="bs" style="color:var(--blue);border-color:var(--blue)">★</button><button aria-label="Liker" id="bl" style="color:var(--green);border-color:var(--green)">♥</button></div>`)){
       $("#bn").onclick=()=>vote("nope");
       $("#bl").onclick=()=>vote("like");
@@ -436,7 +573,7 @@ function phone(){
     }
   }
   else if(md==="stats"){
-    set(hero("👀","Regarde le tableau","Les résultats de "+P[SES.i].n+" s’affichent."));
+    set(hero("👀","Regarde le tableau","Les matchs de "+P[SES.i].n+" s’affichent."));
   }
   else if(md==="match"){
     if(mk===null){
@@ -444,22 +581,21 @@ function phone(){
         document.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{
           mk=+b.dataset.k;
           burst(["💘","💖","✨",P[mk].e]);
-          room.presence({k:mk});
+          if(room)room.presence({k:mk});
           last="";render();
         });
       }
     }else{
       const p=P[mk];
-      set(`<div class="panel"><div class="match">${[..."💘❤️💖💕💗"].map((h,i)=>`<span class="heart" style="left:${10+i*20}%;animation-delay:${i*.5}s;font-size:${22+i*4}px">${h}</span>`).join("")}<h1>It’s a match !</h1><div>Toi et ${p.n} vous plaisez mutuellement</div><div class="av"><span>🙂</span><span>${p.e}</span></div><div class="bub">${ne(p.m)}</div></div><div class="who" style="text-align:center">Regarde le tableau pour la suite.</div></div>`);
+      set(`<div class="panel"><div class="match">${[..."💘❤️💖💕💗"].map((h,i)=>`<span class="heart" style="left:${10+i*20}%;animation-delay:${i*.5}s;font-size:${22+i*4}px">${h}</span>`).join("")}<h1>It’s a match !</h1><div>Toi et ${p.n} vous plaisez mutuellement</div><div class="av"><span>🙂</span><span>${p.e}</span></div><div class="bub">${ne(p.m)}</div></div><div class="who" style="text-align:center">Regarde le tableau pour le verdict final.</div></div>`);
     }
   }
-  else set(hero("⏳","Séance terminée","En attente du lancement de la nouvelle séance…"));
 }
 
 function bind(){
   const c=$(".card");if(!c)return;
   let x0=null,y0=0,pid=null;
-  const baseShadow="0 26px 60px -14px rgba(0,0,0,.48),inset 0 0 0 1.5px rgba(255,255,255,.16)";
+  const baseShadow="0 26px 60px -14px rgba(0,0,0,.52),inset 0 0 0 1px rgba(255,255,255,.16)";
 
   c.onpointerdown=e=>{
     if(sw[SES.i])return;
@@ -520,30 +656,67 @@ function join(){
   PS=((z&&z.value)||"").trim().slice(0,20)||"Anonyme";
   kickNotice="";
   ph="play";
-  MY={name:PS,sid:SES.sid||"",v:[],k:null};
+  sw={};
+  mk=null;
+  MY={name:PS,sid:"",v:[],k:null};
   connectHost();
   last="";render();
 }
 
 /* ---- tableau (présentateur) ---- */
 function board(){
-  const md=SES.mode,p=P[SES.i],n=pl().length,t=tally();let h,after;
-  if(!room){set(hero("📡","Connexion…","Un instant, la salle se prépare."));return}
+  const md=SES.mode,p=P[SES.i],players=pl(),n=players.length,t=tally();let h,after;
+  if(!room){set(hero("📡","Préparation de la salle…","Un instant, le QR code arrive."));return}
   if(md==="lobby"){
-    h=`<div class="board">
-      <div class="side" style="flex:0 0 auto;align-items:center;justify-content:center">
+    const centerContent=n===0
+      ?`<div class="radar-zone">
+          <div class="radar"><span></span><span></span><span></span><b>🔥</b></div>
+          <p>Recherche de participants à proximité…</p>
+          <small>Scanne le QR code à gauche pour rejoindre la session</small>
+        </div>`
+      :`<div class="p-grid">${playerCards(players)}</div>`;
+
+    h=`<div class="lobby-wrap">
+      <div class="box qr-col">
+        <div class="live-pill"><span class="dot"></span>Session en direct</div>
         <div class="qr-wrap"><div class="qr">${qr()}</div></div>
-        <div class="note">Scanne pour jouer</div>
         <div class="link-row">
           <input class="lk" id="lk" value="${esc(JOIN)}" aria-label="Lien de la séance">
           <button class="cp" id="cp" title="Copier le lien">📋</button>
         </div>
+        <div class="steps">
+          <div><span>📱</span>1. Scanne</div>
+          <div><span>✍️</span>2. Pseudo</div>
+          <div><span>💘</span>3. Swipe</div>
+        </div>
       </div>
-      <div class="side">
-        <h2>Scanne et choisis un pseudo</h2>
-        <div class="who">${n} joueur${n>1?"s":""} dans la salle</div>
-        <div class="chips">${chipsOf(pl())}</div>
-        <div class="ctl"><button class="go" id="a1">Démarrer</button><button class="go g2" id="a2">Nouvelle séance</button></div>
+
+      <div class="lobby-main">
+        <div class="box players-box">
+          <div class="l-head">
+            <div>
+              <h2>Scanne et choisis un pseudo</h2>
+              <div class="l-sub">Les participants apparaissent ici en temps réel</div>
+            </div>
+            <div class="count-badge">🔥 ${n} connecté${n>1?"s":""}</div>
+          </div>
+          ${centerContent}
+        </div>
+
+        <div class="box deck-box">
+          <div class="deck-lbl">
+            <span>À l’affiche ce soir</span>
+            <span>6 data centers</span>
+          </div>
+          <div class="deck-row">
+            ${P.map(q=>`<div class="mini-c" style="background:linear-gradient(155deg,${q.g[0]},${q.g[1]})"><i>${q.e}</i><b>${q.n}</b><span>${q.a}</span></div>`).join("")}
+          </div>
+        </div>
+
+        <div class="ctl">
+          <button class="go" id="a1">Démarrer le swipe</button>
+          <button class="go g2" id="a2">Nouvelle séance</button>
+        </div>
       </div>
     </div>`;
     after=()=>{
@@ -556,10 +729,10 @@ function board(){
   else if(md==="vote"){
     h=`<div class="board">${cardHTML(p,false)}<div class="side">
       <h2>Profil ${SES.i+1} / ${P.length}</h2>
-      <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:700;color:var(--ink)">${t.n} / ${n} ont voté</div>
-      <div class="bar"><i style="width:${n?100*t.n/n:0}%;background:linear-gradient(90deg,var(--pink),var(--orange))"></i></div>
-      <div class="chips">${chipsOf(pl().filter(x=>vt(x,SES.i)))}</div>
-      <div class="ctl"><button class="go" id="a1">Voir les stats maintenant</button></div>
+      <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
+      <div class="bar"><i style="width:${n?100*t.n/n:0}%;background:var(--grad)"></i></div>
+      <div class="chips">${chipsOf(players.filter(x=>vt(x,SES.i)))}</div>
+      <div class="ctl"><button class="go" id="a1">Voir les matchs maintenant</button></div>
     </div></div>`;
   }
   else if(md==="stats"){
@@ -578,7 +751,7 @@ function board(){
     if(md==="match"){
       h=`<div class="side" style="flex:1">
         <h2>Ton match parfait : ${ms.length} / ${n} ont choisi</h2>
-        ${P.map((q,k)=>{const a=cnt(k);return`<div class="row"><span>${q.e} ${q.n}</span><span>${a.length}</span></div><div class="bar"><i style="width:${100*a.length/Math.max(1,mx)}%;background:linear-gradient(90deg,var(--pink),var(--orange))"></i></div><div class="nm">${names(a)}</div>`}).join("")}
+        ${P.map((q,k)=>{const a=cnt(k);return`<div class="row"><span>${q.e} ${q.n}</span><span>${a.length}</span></div><div class="bar"><i style="width:${100*a.length/Math.max(1,mx)}%;background:var(--grad)"></i></div><div class="nm">${names(a)}</div>`}).join("")}
         <div class="ctl"><button class="go" id="a1">Terminer</button></div>
       </div>`;
     }else{
@@ -586,9 +759,9 @@ function board(){
       h=`<div class="side" style="flex:1">
         <h2>Match de la salle : ${w.map(x=>x.q.e+" "+x.q.n).join(" + ")||"—"}</h2>
         ${w.map(x=>`<div class="winner-box" style="background:linear-gradient(135deg,${x.q.g[0]},${x.q.g[1]})"><div class="we">${x.q.e}</div><div><h3>🏆 ${x.q.n} (${x.q.a})</h3><p>${ne(x.q.m)}</p></div></div>`).join("")}
-        <div class="who">À vous d’expliquer le choix de la salle.</div>
+        <div class="who">Tous les joueurs ont été déconnectés de la salle.</div>
         ${P.map((q,k)=>{const a=cnt(k);return a.length?`<div class="row"><span>${q.e} ${q.n}</span><span>${a.length}</span></div><div class="nm">${names(a)}</div>`:""}).join("")}
-        <div class="ctl"><button class="go g2" id="a2">Nouvelle séance</button></div>
+        <div class="ctl"><button class="go" id="a2">Nouvelle séance</button></div>
       </div>`;
     }
   }
@@ -601,9 +774,10 @@ function board(){
 }
 
 function kickAll(reason){
-  CONNS.forEach(c=>{try{if(c.open)c.send({t:"kick",reason})}catch(_){}});
+  const list=[...CONNS];
+  list.forEach(c=>{try{if(c.open)c.send({t:"kick",reason})}catch(_){}});
   setTimeout(()=>{
-    CONNS.forEach(c=>{try{c.close()}catch(_){}});
+    list.forEach(c=>{try{c.close()}catch(_){}});
     CONNS=[];
     PRES={};
     sync();
@@ -646,10 +820,14 @@ function openHost(retry){
   const pr=new Peer(id);
   pr.on("open",()=>{JOIN=location.href.split("#")[0]+"#j="+id;room=true;last="";render()});
   pr.on("connection",c=>{
+    if(SES.mode==="end"){
+      c.on("open",()=>{try{c.send({t:"ended"})}catch(_){}setTimeout(()=>{try{c.close()}catch(_){}},150)});
+      return;
+    }
     CONNS.push(c);
     c.on("open",()=>c.send({t:"ses",s:SES}));
     c.on("data",m=>{
-      if(!m||m.t!=="pres"||!m.p)return;
+      if(!m||m.t!=="pres"||!m.p||SES.mode==="end")return;
       const q=m.p;
       PRES[c.peer]={
         name:String(q.name||"").slice(0,20),
@@ -667,59 +845,69 @@ function openHost(retry){
 
 function connectHost(){
   if(ph!=="play"||!hostId)return;
-  if(NET&&NET.open){if(room)room.presence({});return}
-  if(!peerObj){
-    peerObj=new Peer();
-    peerObj.on("open",()=>{if(ph==="play")connectHost()});
-    peerObj.on("disconnected",()=>{if(!peerObj.destroyed)peerObj.reconnect()});
-    peerObj.on("error",()=>{});
-    return;
-  }
-  if(peerObj.disconnected){peerObj.reconnect();return}
-  if(!peerObj.open)return;
+  const gen=++connGen;
+  if(NET){try{NET.close()}catch(_){}NET=null}
+  if(peerObj){try{peerObj.destroy()}catch(_){}peerObj=null}
 
-  const c=peerObj.connect(hostId);
-  c.on("open",()=>{
-    if(ph!=="play"){try{c.close()}catch(_){}return}
-    NET=c;
-    room={presence:p=>{MY={...MY,...p};try{if(NET&&NET.open&&MY.name)NET.send({t:"pres",p:MY})}catch(e){}}};
-    room.presence({});
-    last="";render();
-  });
-  c.on("data",m=>{
-    if(!m)return;
-    if(m.t==="kick"){
-      disconnectToIntro(m.reason==="reset"?"🔄 Nouvelle séance ! Entre ton pseudo.":"🏁 Séance terminée ! Entre un pseudo pour rejouer.");
-      return;
-    }
-    if(m.t==="ses"&&m.s){
-      const nw=m.s;
-      if(MY.sid&&nw.sid!==MY.sid){
-        disconnectToIntro("🔄 Nouvelle séance ! Entre ton pseudo.");
+  const pr=new Peer();
+  peerObj=pr;
+
+  pr.on("open",()=>{
+    if(gen!==connGen||ph!=="play")return;
+    const c=pr.connect(hostId);
+    c.on("open",()=>{
+      if(gen!==connGen||ph!=="play"){try{c.close()}catch(_){}return}
+      NET=c;
+      room={presence:p=>{MY={...MY,...p};try{if(NET&&NET.open&&MY.name)NET.send({t:"pres",p:MY})}catch(e){}}};
+      room.presence({});
+      last="";render();
+    });
+    c.on("data",m=>{
+      if(gen!==connGen||!m)return;
+      if(m.t==="ended"){
+        disconnectToIntro("⏳ Séance terminée — Attends la nouvelle séance !");
         return;
       }
-      SES=nw;
-      MY.sid=nw.sid;
-      last="";
-      if(room&&nw.mode!=="end")room.presence({});
-      render();
-    }
+      if(m.t==="kick"){
+        disconnectToIntro(m.reason==="reset"?"🔄 Nouvelle séance ! Entre ton pseudo.":"🏁 Séance terminée — Déconnecté de la salle");
+        return;
+      }
+      if(m.t==="ses"&&m.s){
+        const nw=m.s;
+        if(nw.mode==="end"){
+          disconnectToIntro("🏁 Séance terminée — Déconnecté de la salle");
+          return;
+        }
+        if(MY.sid&&nw.sid!==MY.sid){
+          disconnectToIntro("🔄 Nouvelle séance ! Entre ton pseudo.");
+          return;
+        }
+        SES=nw;
+        MY.sid=nw.sid;
+        last="";
+        if(room)room.presence({});
+        render();
+      }
+    });
+    c.on("close",()=>{
+      if(gen!==connGen)return;
+      NET=null;room=null;
+      if(ph==="play"){
+        disconnectToIntro("🔌 Déconnecté de la salle");
+      }
+    });
   });
-  c.on("close",()=>{
-    if(NET===c){NET=null;room=null}
+
+  pr.on("error",()=>{
+    if(gen!==connGen)return;
     if(ph==="play"){
-      if(SES.mode==="end")disconnectToIntro("🏁 Séance terminée ! Entre un pseudo pour rejouer.");
-      else setTimeout(connectHost,1500);
+      setTimeout(()=>{if(gen===connGen&&ph==="play"&&!NET)connectHost()},1500);
     }
   });
 }
 
 function startPhone(id){
   hostId=id;
-  peerObj=new Peer();
-  peerObj.on("open",()=>{if(ph==="play")connectHost()});
-  peerObj.on("disconnected",()=>{if(!peerObj.destroyed)peerObj.reconnect()});
-  peerObj.on("error",()=>{});
 }
 
 function start(){
