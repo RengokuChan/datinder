@@ -171,6 +171,12 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .panel{flex:1;min-height:0;overflow:auto;border-radius:24px;padding:20px;animation:pop .4s both}
 .who{color:var(--mute);font-size:14.5px;margin-bottom:10px;line-height:1.4}
 
+.badge-end{
+  display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;
+  padding:6px 14px;border-radius:99px;font-size:13px;font-weight:700;
+  color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28)
+}
+
 .go{
   border:0;border-radius:99px;padding:15px 18px;font-size:17px;font-weight:700;color:#fff;
   background:linear-gradient(90deg,var(--pink),var(--orange),var(--pink));
@@ -323,7 +329,7 @@ const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const ne=s=>String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g,"$1").replace(/\s+/g," ").trim();
 const sid=()=>Math.random().toString(36).slice(2,8);
 
-let room=null,HOST=false,PS="",SES={mode:"lobby",i:0,sid:"0"},ph="intro",sw={},mk=null,peers=[],last="",JOIN="",CONNS=[],PRES={},MY={},NET=null,dragging=false;
+let room=null,HOST=false,PS="",SES={mode:"lobby",i:0,sid:"0"},ph="intro",sw={},mk=null,peers=[],last="",JOIN="",CONNS=[],PRES={},MY={},NET=null,dragging=false,peerObj=null,hostId="",kickNotice="";
 const ok=["like","super","nope"];
 
 $("#th").onclick=()=>{
@@ -389,15 +395,33 @@ function render(){
     :HOST&&room?pl().length+" joueur"+(pl().length>1?"s":""):"";
 }
 
+/* ---- déconnexion façon Kahoot en fin de séance ---- */
+function disconnectToIntro(msg){
+  kickNotice=msg||"🏁 Séance terminée !";
+  ph="intro";
+  sw={};
+  mk=null;
+  MY={};
+  dragging=false;
+  const oldNet=NET;
+  NET=null;
+  room=null;
+  if(oldNet){try{oldNet.close()}catch(_){}}
+  last="";
+  render();
+}
+
 /* ---- téléphone ---- */
 function phone(){
-  if(!room&&ph!=="intro"){set(hero("📡","Connexion…","Un instant, on te connecte à la salle."));return}
   if(ph==="intro"){
-    if(set(`<div class="panel hero"><div class="big"><i>🔥</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la séance.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre</button></div>`)){
+    const notice=kickNotice?`<div class="badge-end">${esc(kickNotice)}</div>`:"";
+    if(set(`<div class="panel hero">${notice}<div class="big"><i>🔥</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la séance.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre</button></div>`)){
       $("#start").onclick=join;
+      const inp=$("#pz");if(inp)inp.focus();
     }
     return;
   }
+  if(!room){set(hero("📡","Connexion…","Un instant, on te connecte à la salle."));return}
   const md=SES.mode;
   if(md==="lobby"){
     set(hero("🎉","Tu es dans la salle, "+esc(PS),"La séance va commencer. Garde ton téléphone en main."));
@@ -429,7 +453,7 @@ function phone(){
       set(`<div class="panel"><div class="match">${[..."💘❤️💖💕💗"].map((h,i)=>`<span class="heart" style="left:${10+i*20}%;animation-delay:${i*.5}s;font-size:${22+i*4}px">${h}</span>`).join("")}<h1>It’s a match !</h1><div>Toi et ${p.n} vous plaisez mutuellement</div><div class="av"><span>🙂</span><span>${p.e}</span></div><div class="bub">${ne(p.m)}</div></div><div class="who" style="text-align:center">Regarde le tableau pour la suite.</div></div>`);
     }
   }
-  else set(hero("🙏","Merci d’avoir joué !","Le verdict de la salle est affiché au tableau."));
+  else set(hero("⏳","Séance terminée","En attente du lancement de la nouvelle séance…"));
 }
 
 function bind(){
@@ -494,9 +518,10 @@ function vote(k){
 function join(){
   const z=$("#pz");
   PS=((z&&z.value)||"").trim().slice(0,20)||"Anonyme";
+  kickNotice="";
   ph="play";
-  MY={name:PS,sid:SES.sid,v:[],k:null};
-  if(room)room.presence({});
+  MY={name:PS,sid:SES.sid||"",v:[],k:null};
+  connectHost();
   last="";render();
 }
 
@@ -570,15 +595,38 @@ function board(){
   if(set(h)){
     const a1=$("#a1"),a2=$("#a2");
     if(a1)a1.onclick=adv;
-    if(a2)a2.onclick=()=>setSes({sid:sid(),mode:"lobby",i:0});
+    if(a2)a2.onclick=resetSession;
     if(after)after();
   }
 }
 
-function setSes(p){
-  SES={...SES,...p};bc();last="";render();
-  if(SES.mode==="end")burst(["🏆","💘","🔥","🎉","✨"]);
+function kickAll(reason){
+  CONNS.forEach(c=>{try{if(c.open)c.send({t:"kick",reason})}catch(_){}});
+  setTimeout(()=>{
+    CONNS.forEach(c=>{try{c.close()}catch(_){}});
+    CONNS=[];
+    PRES={};
+    sync();
+  },250);
 }
+
+function resetSession(){
+  kickAll("reset");
+  setSes({sid:sid(),mode:"lobby",i:0});
+}
+
+function setSes(p){
+  const prev=SES.mode;
+  SES={...SES,...p};
+  bc();
+  last="";
+  render();
+  if(SES.mode==="end"&&prev!=="end"){
+    burst(["🏆","💘","🔥","🎉","✨"]);
+    kickAll("end");
+  }
+}
+
 function adv(){
   const md=SES.mode;
   if(md==="lobby")setSes({mode:"vote",i:0});
@@ -617,27 +665,61 @@ function openHost(retry){
   pr.on("error",e=>{if(e.type==="unavailable-id"&&!retry){try{localStorage.removeItem("dtk")}catch(_){}openHost(true)}});
 }
 
-function startPhone(id){
-  const pr=new Peer();
-  const go=()=>{
-    const c=pr.connect(id);
-    c.on("open",()=>{
-      NET=c;
-      room={presence:p=>{MY={...MY,...p};try{if(NET&&NET.open&&MY.name)NET.send({t:"pres",p:MY})}catch(e){}}};
-      room.presence({});last="";render();
-    });
-    c.on("data",m=>{
-      if(m&&m.t==="ses"&&m.s){
-        const nw=m.s;
-        if(nw.sid!==SES.sid){sw={};mk=null;MY={...MY,sid:nw.sid,v:[],k:null}}
-        SES=nw;last="";if(room)room.presence({});render();
+function connectHost(){
+  if(ph!=="play"||!hostId)return;
+  if(NET&&NET.open){if(room)room.presence({});return}
+  if(!peerObj){
+    peerObj=new Peer();
+    peerObj.on("open",()=>{if(ph==="play")connectHost()});
+    peerObj.on("disconnected",()=>{if(!peerObj.destroyed)peerObj.reconnect()});
+    peerObj.on("error",()=>{});
+    return;
+  }
+  if(peerObj.disconnected){peerObj.reconnect();return}
+  if(!peerObj.open)return;
+
+  const c=peerObj.connect(hostId);
+  c.on("open",()=>{
+    if(ph!=="play"){try{c.close()}catch(_){}return}
+    NET=c;
+    room={presence:p=>{MY={...MY,...p};try{if(NET&&NET.open&&MY.name)NET.send({t:"pres",p:MY})}catch(e){}}};
+    room.presence({});
+    last="";render();
+  });
+  c.on("data",m=>{
+    if(!m)return;
+    if(m.t==="kick"){
+      disconnectToIntro(m.reason==="reset"?"🔄 Nouvelle séance ! Entre ton pseudo.":"🏁 Séance terminée ! Entre un pseudo pour rejouer.");
+      return;
+    }
+    if(m.t==="ses"&&m.s){
+      const nw=m.s;
+      if(MY.sid&&nw.sid!==MY.sid){
+        disconnectToIntro("🔄 Nouvelle séance ! Entre ton pseudo.");
+        return;
       }
-    });
-    c.on("close",()=>{NET=null;room=null;setTimeout(go,1500)});
-  };
-  pr.on("open",go);
-  pr.on("disconnected",()=>{if(!pr.destroyed)pr.reconnect()});
-  pr.on("error",()=>{});
+      SES=nw;
+      MY.sid=nw.sid;
+      last="";
+      if(room&&nw.mode!=="end")room.presence({});
+      render();
+    }
+  });
+  c.on("close",()=>{
+    if(NET===c){NET=null;room=null}
+    if(ph==="play"){
+      if(SES.mode==="end")disconnectToIntro("🏁 Séance terminée ! Entre un pseudo pour rejouer.");
+      else setTimeout(connectHost,1500);
+    }
+  });
+}
+
+function startPhone(id){
+  hostId=id;
+  peerObj=new Peer();
+  peerObj.on("open",()=>{if(ph==="play")connectHost()});
+  peerObj.on("disconnected",()=>{if(!peerObj.destroyed)peerObj.reconnect()});
+  peerObj.on("error",()=>{});
 }
 
 function start(){
