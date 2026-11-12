@@ -7,65 +7,67 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f5f6fa;--card:#ffffff;--ink:#191c24;--mute:#6e7685;--line:rgba(25,28,36,.09);
-  --panel:rgba(255,255,255,.88);--panel-solid:#ffffff;--chip:#f0f2f7;
-  --pink:#fd267a;--orange:#ff6036;--gold:#e5b548;--green:#21d07a;--red:#ff4458;--blue:#2ab6ff;
+  --bg:#f4f5f9;--card:#ffffff;--ink:#161822;--mute:#687082;--line:rgba(22,24,34,.09);
+  --panel:rgba(255,255,255,.92);--panel-solid:#ffffff;--chip:#eef0f6;
+  --pink:#fd267a;--orange:#ff6036;--gold:#f0b93d;--green:#21d07a;--red:#ff4458;--blue:#2ab6ff;
   --grad:linear-gradient(135deg,#fd267a 0%,#ff6036 100%);
-  --shadow:0 18px 44px rgba(17,20,30,.12);
+  --shadow:0 20px 50px rgba(16,19,30,.11);
   color-scheme:light;box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0b0c10;--card:#161922;--ink:#f4f6fb;--mute:#939ba8;--line:rgba(255,255,255,.09);
-    --panel:rgba(21,24,33,.84);--panel-solid:#171a24;--chip:#1f2330;
-    --shadow:0 22px 54px rgba(0,0,0,.55);color-scheme:dark
+    --bg:#090a0f;--card:#141720;--ink:#f5f7fc;--mute:#9199a8;--line:rgba(255,255,255,.09);
+    --panel:rgba(19,22,31,.88);--panel-solid:#161923;--chip:#1d212e;
+    --shadow:0 24px 60px rgba(0,0,0,.6);color-scheme:dark
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0b0c10;--card:#161922;--ink:#f4f6fb;--mute:#939ba8;--line:rgba(255,255,255,.09);
-  --panel:rgba(21,24,33,.84);--panel-solid:#171a24;--chip:#1f2330;
-  --shadow:0 22px 54px rgba(0,0,0,.55);color-scheme:dark
+  --bg:#090a0f;--card:#141720;--ink:#f5f7fc;--mute:#9199a8;--line:rgba(255,255,255,.09);
+  --panel:rgba(19,22,31,.88);--panel-solid:#161923;--chip:#1d212e;
+  --shadow:0 24px 60px rgba(0,0,0,.6);color-scheme:dark
 }
 *{box-sizing:border-box}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
   height:100%;margin:0;background:var(--bg);color:var(--ink);
   font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  overflow:hidden;position:relative
+  overflow:hidden;position:relative;
+  background-image:radial-gradient(rgba(130,140,160,.11) 1px,transparent 1px);
+  background-size:24px 24px
 }
 body::before,body::after{
-  content:"";position:fixed;border-radius:50%;filter:blur(110px);opacity:.22;z-index:0;pointer-events:none;
+  content:"";position:fixed;border-radius:50%;filter:blur(120px);opacity:.22;z-index:0;pointer-events:none;
   animation:drift 16s ease-in-out infinite alternate
 }
-body::before{width:58vmax;height:58vmax;background:var(--pink);top:-24vmax;left:-18vmax}
-body::after{width:58vmax;height:58vmax;background:var(--orange);bottom:-28vmax;right:-18vmax;animation-delay:-8s}
+body::before{width:60vmax;height:60vmax;background:var(--pink);top:-25vmax;left:-18vmax}
+body::after{width:60vmax;height:60vmax;background:var(--orange);bottom:-28vmax;right:-18vmax;animation-delay:-8s}
 @keyframes drift{to{transform:translate(6vmax,5vmax) scale(1.12)}}
 
 #app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:10px 14px 14px;position:relative;z-index:1}
-#app.wide{max-width:1320px}
+#app.wide{max-width:1340px}
 
-header{display:flex;align-items:center;justify-content:center;position:relative;padding:2px 0 12px;min-height:44px}
+header{display:flex;align-items:center;justify-content:center;position:relative;padding:2px 0 12px;min-height:46px}
 .logo{
   font-weight:800;font-size:33px;letter-spacing:-1.4px;
   background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
-  display:flex;align-items:center;gap:6px;user-select:none;
-  filter:drop-shadow(0 4px 16px rgba(253,38,122,.28))
+  display:flex;align-items:center;gap:8px;user-select:none;
+  filter:drop-shadow(0 4px 16px rgba(253,38,122,.26))
 }
-.logo i{font-style:normal;display:inline-block;-webkit-text-fill-color:initial;animation:beat 1.7s ease-in-out infinite}
-@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22) rotate(-6deg)}30%{transform:scale(1)}}
+.logo svg{width:30px;height:30px;flex-shrink:0;animation:beat 1.8s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.18) rotate(-5deg)}30%{transform:scale(1)}}
 
 .top-r{position:absolute;right:2px;display:flex;align-items:center;gap:8px}
 .cnt{
   font-size:13px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;
   background:var(--panel);backdrop-filter:blur(14px);
-  border:1px solid var(--line);padding:5px 12px;border-radius:99px;
-  display:inline-flex;align-items:center;gap:6px
+  border:1px solid var(--line);padding:6px 13px;border-radius:99px;
+  display:inline-flex;align-items:center;gap:7px
 }
 .cnt:empty{display:none}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;flex-shrink:0}
 .tbtn{
-  width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--line);
   background:var(--panel);backdrop-filter:blur(14px);
   color:var(--ink);font-size:15px;display:grid;place-items:center;cursor:pointer;
   transition:transform .2s cubic-bezier(.2,1.5,.4,1)
@@ -76,8 +78,8 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
 
 /* Carte Profil Tinder */
 .card{
-  position:relative;flex:1;min-height:0;border-radius:24px;overflow:hidden;
-  box-shadow:0 26px 60px -14px rgba(0,0,0,.52),inset 0 0 0 1px rgba(255,255,255,.16);
+  position:relative;flex:1;min-height:0;border-radius:26px;overflow:hidden;
+  box-shadow:0 28px 64px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.18);
   touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   animation:pop .48s cubic-bezier(.2,1.3,.4,1) both;will-change:transform
 }
@@ -98,9 +100,9 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
 .orb.a{width:56%;aspect-ratio:1;top:-11%;right:-16%}
 .orb.b{width:36%;aspect-ratio:1;top:30%;left:-11%;animation-delay:-3s}
 
-.seg{position:absolute;top:11px;left:12px;right:12px;display:flex;gap:5px;z-index:2;pointer-events:none}
+.seg{position:absolute;top:12px;left:13px;right:13px;display:flex;gap:5px;z-index:2;pointer-events:none}
 .seg i{flex:1;height:3.5px;border-radius:99px;background:rgba(255,255,255,.32);transition:background .3s}
-.seg i.past{background:rgba(255,255,255,.68)}
+.seg i.past{background:rgba(255,255,255,.7)}
 .seg i.on{background:#fff;box-shadow:0 0 10px rgba(255,255,255,.85)}
 
 .emo{
@@ -116,14 +118,14 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
 @keyframes float{50%{transform:translateY(-12px) rotate(3deg)}}
 
 .dist{
-  position:absolute;top:24px;left:14px;z-index:2;
-  background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.28);
+  position:absolute;top:25px;left:14px;z-index:2;
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.28);
   backdrop-filter:blur(10px);color:#fff;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px
 }
 
 .info{
   position:absolute;left:0;right:0;bottom:0;padding:64px 18px 18px;color:#fff;
-  background:linear-gradient(transparent,rgba(8,10,15,.72) 28%,rgba(8,10,15,.95) 72%);pointer-events:none
+  background:linear-gradient(transparent,rgba(8,10,15,.74) 28%,rgba(8,10,15,.96) 72%);pointer-events:none
 }
 .info h2{margin:0;font-size:clamp(28px,4.8vh,40px);font-weight:800;letter-spacing:-.6px;display:flex;align-items:center;gap:8px}
 .info h2 span{font-weight:500;font-size:.68em;opacity:.9}
@@ -151,19 +153,24 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
 .st.nope{right:18px;color:#ff5c72;border-color:#ff5c72;transform:rotate(14deg)}
 .st.sup{left:50%;top:40%;transform:translateX(-50%) rotate(-6deg);color:var(--blue);border-color:var(--blue);font-size:28px;white-space:nowrap}
 
-/* Boutons d'action circulaires Tinder */
+/* Boutons d'action circulaires Tinder avec icônes SVG */
 .btns{display:flex;justify-content:center;align-items:center;gap:20px;padding:2px 0}
 .btns button{
-  width:clamp(58px,9.5vh,72px);height:clamp(58px,9.5vh,72px);border-radius:50%;border:2px solid;
-  background:var(--panel-solid);box-shadow:0 10px 26px rgba(0,0,0,.22);font-size:clamp(24px,4vh,30px);font-weight:800;
-  cursor:pointer;transition:transform .18s cubic-bezier(.2,1.5,.4,1),box-shadow .18s,background .18s,color .18s
+  width:clamp(60px,9.5vh,74px);height:clamp(60px,9.5vh,74px);border-radius:50%;border:2px solid;
+  background:var(--panel-solid);box-shadow:0 12px 28px rgba(0,0,0,.24);
+  display:grid;place-items:center;cursor:pointer;
+  transition:transform .18s cubic-bezier(.2,1.5,.4,1),box-shadow .18s,background .18s,color .18s
 }
-.btns button:hover{transform:scale(1.12) translateY(-3px);box-shadow:0 16px 32px rgba(0,0,0,.32)}
+.btns button svg{width:44%;height:44%}
+.btns button:hover{transform:scale(1.12) translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.34)}
 .btns button:active{transform:scale(.9)}
-.btns .sm{width:clamp(46px,7.2vh,56px);height:clamp(46px,7.2vh,56px);font-size:clamp(20px,3.2vh,25px)}
-#bl:hover{background:var(--green);color:#fff!important}
-#bn:hover{background:var(--red);color:#fff!important}
-#bs:hover{background:var(--blue);color:#fff!important}
+.btns .sm{width:clamp(48px,7.4vh,58px);height:clamp(48px,7.4vh,58px)}
+#bn{color:var(--red);border-color:rgba(255,68,88,.35)}
+#bs{color:var(--blue);border-color:rgba(42,182,255,.35)}
+#bl{color:var(--green);border-color:rgba(33,208,122,.35)}
+#bl:hover{background:var(--green);border-color:var(--green);color:#fff!important}
+#bn:hover{background:var(--red);border-color:var(--red);color:#fff!important}
+#bs:hover{background:var(--blue);border-color:var(--blue);color:#fff!important}
 button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
 /* Surfaces vitrées Tinder */
@@ -184,7 +191,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 }
 
 .go{
-  border:0;border-radius:99px;padding:15px 22px;font-size:16.5px;font-weight:700;color:#fff;
+  border:0;border-radius:99px;padding:15px 24px;font-size:16.5px;font-weight:700;color:#fff;
   background:linear-gradient(90deg,var(--pink),var(--orange),var(--pink));
   background-size:200% 100%;animation:sheen 4s linear infinite;letter-spacing:.2px;
   cursor:pointer;width:100%;margin-top:10px;box-shadow:0 10px 26px rgba(253,38,122,.34);
@@ -209,6 +216,15 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 }
 @keyframes ring{0%{box-shadow:0 0 0 0 rgba(253,38,122,.48)}70%,100%{box-shadow:0 0 0 34px rgba(253,38,122,0)}}
 .hero h1{margin:6px 0;font-size:clamp(25px,4.6vh,36px);font-weight:800;line-height:1.14;letter-spacing:-.6px}
+
+.phone-tips{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;
+  padding-top:16px;border-top:1px solid var(--line)
+}
+.phone-tips div{
+  background:var(--chip);border-radius:14px;padding:9px 6px;font-size:11.5px;font-weight:700;color:var(--mute)
+}
+.phone-tips b{display:block;font-size:15px;margin-bottom:2px}
 
 /* Grille Match Parfait */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}
@@ -251,40 +267,40 @@ input{
 input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);box-shadow:0 0 0 4px rgba(253,38,122,.16)}
 
 /* =========================================================
-   LOBBY PRÉSENTATEUR : DESIGN TINDER VIP
+   LOBBY PRÉSENTATEUR : ZERO VIDE, ZERO SPOILER, 100% TINDER
    ========================================================= */
-.lobby-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(290px,350px) 1fr;gap:18px}
+.lobby-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(310px,375px) 1fr;gap:18px}
 .qr-col{
-  border-radius:26px;padding:20px;display:flex;flex-direction:column;align-items:center;
-  justify-content:space-between;gap:12px;animation:pop .4s both
+  border-radius:26px;padding:22px;display:flex;flex-direction:column;align-items:center;
+  justify-content:space-between;gap:14px;animation:pop .4s both
 }
 .live-pill{
   display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:99px;
-  font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+  font-size:12px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
   color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28)
 }
 .qr-wrap{
-  padding:6px;border-radius:22px;background:var(--grad);
-  box-shadow:0 16px 36px rgba(253,38,122,.28);width:min(100%,255px)
+  padding:7px;border-radius:24px;background:var(--grad);
+  box-shadow:0 18px 40px rgba(253,38,122,.3);width:min(100%,275px)
 }
-.qr{width:100%;background:#fff;border-radius:17px;padding:12px;display:block}
+.qr{width:100%;background:#fff;border-radius:18px;padding:13px;display:block}
 .qr svg{display:block;width:100%;height:auto}
 .link-row{display:flex;gap:6px;width:100%;align-items:center}
-.lk{font-size:12px;padding:9px 12px;margin:0;flex:1;min-width:0;font-weight:600}
+.lk{font-size:12px;padding:10px 12px;margin:0;flex:1;min-width:0;font-weight:600}
 .cp{
   border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;
-  padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+  padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
   transition:transform .15s,background .15s
 }
 .cp:hover{transform:scale(1.06);background:var(--panel-solid)}
 .steps{
-  width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
-  padding-top:8px;border-top:1px solid var(--line);text-align:center
+  width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  padding-top:10px;border-top:1px solid var(--line);text-align:center
 }
 .steps div{
-  background:var(--chip);border-radius:14px;padding:8px 4px;font-size:11.5px;font-weight:700;color:var(--mute)
+  background:var(--chip);border-radius:14px;padding:9px 4px;font-size:12px;font-weight:700;color:var(--mute)
 }
-.steps span{display:block;font-size:18px;margin-bottom:2px}
+.steps span{display:block;font-size:18px;margin-bottom:3px}
 
 .lobby-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
 .players-box{
@@ -296,56 +312,90 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
   margin:0;font-size:clamp(22px,3.4vh,32px);font-weight:800;letter-spacing:-.5px;
   background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
 }
-.l-sub{color:var(--mute);font-size:14px;margin:2px 0 0;font-weight:500}
+.l-sub{color:var(--mute);font-size:14px;margin:3px 0 0;font-weight:500}
 .count-badge{
-  padding:8px 16px;border-radius:99px;font-size:14px;font-weight:800;color:#fff;
-  background:var(--grad);box-shadow:0 8px 20px rgba(253,38,122,.28);
+  padding:9px 18px;border-radius:99px;font-size:14.5px;font-weight:800;color:#fff;
+  background:var(--grad);box-shadow:0 8px 22px rgba(253,38,122,.3);
   display:inline-flex;align-items:center;gap:8px
 }
 
-/* Radar Tinder quand la salle est vide */
+/* Radar Tinder riche avec badges flottants quand la salle attend des joueurs */
 .radar-zone{
-  flex:1;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;position:relative;padding:12px
+  flex:1;min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;padding:12px;overflow:hidden
 }
 .radar{
-  position:relative;width:108px;height:108px;display:grid;place-items:center;margin-bottom:16px
+  position:relative;width:136px;height:136px;display:grid;place-items:center;margin-bottom:16px
 }
 .radar span{
-  position:absolute;inset:0;border-radius:50%;border:2px solid rgba(253,38,122,.45);
-  background:radial-gradient(circle,rgba(253,38,122,.14),transparent 70%);
-  animation:sonar 2.8s cubic-bezier(.15,.7,.35,1) infinite
+  position:absolute;inset:0;border-radius:50%;border:2px solid rgba(253,38,122,.4);
+  background:radial-gradient(circle,rgba(253,38,122,.12),transparent 70%);
+  animation:sonar 3s cubic-bezier(.15,.7,.35,1) infinite
 }
-.radar span:nth-child(2){animation-delay:.9s}
-.radar span:nth-child(3){animation-delay:1.8s}
+.radar span:nth-child(2){animation-delay:1s}
+.radar span:nth-child(3){animation-delay:2s}
 @keyframes sonar{
-  0%{transform:scale(.65);opacity:.9}
-  100%{transform:scale(2.2);opacity:0}
+  0%{transform:scale(.6);opacity:.95}
+  100%{transform:scale(2.35);opacity:0}
 }
 .radar b{
-  position:relative;z-index:2;width:68px;height:68px;border-radius:50%;background:var(--grad);
-  display:grid;place-items:center;font-size:30px;color:#fff;
-  box-shadow:0 10px 26px rgba(253,38,122,.42)
+  position:relative;z-index:2;width:74px;height:74px;border-radius:50%;background:var(--grad);
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 12px 28px rgba(253,38,122,.45)
 }
-.radar-zone p{margin:0;font-size:16px;font-weight:700;color:var(--ink)}
+.radar b svg{width:34px;height:34px}
+.orbit-tag{
+  position:absolute;z-index:3;width:34px;height:34px;border-radius:50%;
+  background:var(--panel-solid);border:1px solid var(--line);
+  box-shadow:0 6px 16px rgba(0,0,0,.22);display:grid;place-items:center;
+  font-size:15px;font-weight:800;animation:float 3.5s ease-in-out infinite
+}
+.orbit-tag.t1{top:6px;right:8px;color:var(--green)}
+.orbit-tag.t2{bottom:10px;left:4px;color:var(--blue);animation-delay:-1.2s}
+.orbit-tag.t3{top:14px;left:10px;color:var(--red);animation-delay:-2.4s}
+.radar-zone p{margin:0;font-size:16.5px;font-weight:800;color:var(--ink)}
 .radar-zone small{color:var(--mute);font-size:13.5px;margin-top:4px}
 
-/* Grille de joueurs connectés style Tinder */
+/* Grille de joueurs connectés style Tinder Match */
 .p-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:11px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px;
   align-content:start;padding:2px 0
 }
 .p-card{
-  display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:16px;
+  display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:18px;
   background:var(--chip);border:1px solid var(--line);
   animation:pop .38s cubic-bezier(.2,1.5,.4,1) both
 }
 .p-av{
-  width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;
-  font-weight:800;font-size:14.5px;display:grid;place-items:center;flex-shrink:0;
-  box-shadow:0 4px 12px rgba(253,38,122,.3)
+  width:38px;height:38px;border-radius:50%;color:#fff;
+  font-weight:800;font-size:15px;display:grid;place-items:center;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.22);position:relative
 }
+.p-av::after{
+  content:"";position:absolute;right:0;bottom:0;width:10px;height:10px;border-radius:50%;
+  background:var(--green);border:2px solid var(--panel-solid)
+}
+.p-meta{min-width:0;flex:1}
 .p-nm{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p-st{font-size:11.5px;color:var(--mute);font-weight:600}
+
+/* Bandeau Guide des Gestes Tinder (remplit le bas sans rien spoiler) */
+.guide-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px
+}
+.g-item{
+  border-radius:20px;padding:13px 15px;display:flex;align-items:center;gap:12px;
+  animation:pop .48s both
+}
+.g-ic{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  font-size:18px;font-weight:900;flex-shrink:0
+}
+.g-ic.r{background:rgba(255,68,88,.14);color:var(--red);border:1.5px solid rgba(255,68,88,.3)}
+.g-ic.b{background:rgba(42,182,255,.14);color:var(--blue);border:1.5px solid rgba(42,182,255,.3)}
+.g-ic.g{background:rgba(33,208,122,.14);color:var(--green);border:1.5px solid rgba(33,208,122,.3)}
+.g-txt b{display:block;font-size:13.5px;font-weight:800;color:var(--ink)}
+.g-txt span{display:block;font-size:12px;color:var(--mute);font-weight:500;margin-top:1px}
 
 /* Tableau Vote / Stats / Podium */
 .board{flex:1;min-height:0;display:flex;gap:20px}
@@ -370,9 +420,9 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
 @keyframes grow{from{transform:scaleX(0)}}
 .row{display:flex;justify-content:space-between;font-size:clamp(16px,2.8vh,24px);font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums}
 .nm{font-size:clamp(13px,2.1vh,17px);color:var(--mute);font-weight:500}
-.ctl{display:flex;gap:12px;margin-top:auto;padding-top:6px}
+.ctl{display:flex;gap:12px;margin-top:auto;padding-top:4px}
 .ctl .go{margin:0}
-.ctl .go.g2{flex:0 0 auto;width:auto;padding:15px 22px}
+.ctl .go.g2{flex:0 0 auto;width:auto;padding:15px 24px}
 
 /* Carte Gagnante Tinder Gold */
 .winner-box{
@@ -389,8 +439,9 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
 .fx i{position:absolute;top:-24px;font-style:normal;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(106vh) rotate(540deg);opacity:0}}
 
-@media (max-width:960px){
+@media (max-width:980px){
   .lobby-wrap{grid-template-columns:1fr;overflow:auto}
+  .guide-bar{grid-template-columns:1fr}
 }
 @media (max-width:800px){
   .board{flex-direction:column}
@@ -404,7 +455,18 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
 <div class="fx" id="fx"></div>
 <div id="app">
   <header>
-    <div class="logo"><i>🔥</i>datinder</div>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="tflame" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#fd267a"/>
+            <stop offset="100%" stop-color="#ff6036"/>
+          </linearGradient>
+        </defs>
+        <path fill="url(#tflame)" d="M13.5 2.2c.4 3.4-1.4 5.6-3.4 7.1-.3-1.4-.2-2.9.3-4.1-3.3 1.7-5.9 5.1-5.9 9.1 0 4.3 3.4 7.7 7.6 7.7s7.4-3.4 7.4-7.6c0-4.9-3.1-9.6-6-12.2z"/>
+      </svg>
+      datinder
+    </div>
     <div class="top-r">
       <div class="cnt" id="cnt"></div>
       <button class="tbtn" id="th" title="Changer le thème" aria-label="Changer le thème">🌓</button>
@@ -421,9 +483,25 @@ const P=[
 {e:"🚀",n:"La Rêveuse",a:"800 km",loc:"📍 À 800 km de toi, en orbite",g:["#1a0b3b","#7b2ff7"],bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅",t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"],m:"Je t’appelle depuis l’orbite. Ne coupe pas. 🛰️"},
 {e:"🏢",n:"La Fiable",a:"Ashburn",loc:"📍 En Virginie (USA), zone industrielle",g:["#485563","#29323c"],bio:"Pas la plus glamour : façade grise, zéro fenêtre. Mais je suis dispo à 99,999 %, même à 3 h du matin, et j’ai des centaines de connexions. On dit que 70 % du trafic mondial passe chez moi. Comme sur Tinder : vérifie avant d’y croire. 😉",t:["🏢 Zone industrielle","⏱️ Dispo 24h/24","🌐 Gros réseau"],m:"Je suis dispo à 99,999 % pour toi. ⏱️"}];
 
+const AVGRADS=[
+  "linear-gradient(135deg,#fd267a,#ff6036)",
+  "linear-gradient(135deg,#7b2ff7,#2ab6ff)",
+  "linear-gradient(135deg,#21d07a,#12c2e9)",
+  "linear-gradient(135deg,#f5af19,#f12711)",
+  "linear-gradient(135deg,#ff4458,#fd267a)",
+  "linear-gradient(135deg,#2ab6ff,#3b4cca)"
+];
+
+const SVG={
+  flame:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2.2c.4 3.4-1.4 5.6-3.4 7.1-.3-1.4-.2-2.9.3-4.1-3.3 1.7-5.9 5.1-5.9 9.1 0 4.3 3.4 7.7 7.6 7.7s7.4-3.4 7.4-7.6c0-4.9-3.1-9.6-6-12.2z"/></svg>`,
+  nope:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  star:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9z"/></svg>`,
+  like:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.2l-1.4-1.3C5.4 15.2 2 12.1 2 8.3 2 5.2 4.4 2.8 7.5 2.8c1.7 0 3.4.8 4.5 2.1 1.1-1.3 2.8-2.1 4.5-2.1 3.1 0 5.5 2.4 5.5 5.5 0 3.8-3.4 6.9-8.6 11.6L12 21.2z"/></svg>`
+};
+
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const ne=s=>String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g,"$1").replace(/\s+/g," ").trim();
+const ne=s=>String(s).replace(/[\p{Extended_Pictographic}️‍]/gu,"").replace(/\s+([.,!?])/g,"$1").replace(/\s+/g," ").trim();
 const sid=()=>Math.random().toString(36).slice(2,8);
 
 let room=null,HOST=false,PS="",SES={mode:"lobby",i:0,sid:"0"},ph="intro",sw={},mk=null,peers=[],last="",JOIN="",CONNS=[],PRES={},MY={},NET=null,dragging=false,peerObj=null,hostId="",kickNotice="",connGen=0;
@@ -455,10 +533,22 @@ const tally=()=>{const s=pl(),k=SES.i,g=t=>s.filter(x=>vt(x,k)===t);return{like:
 const picks=()=>pl().filter(x=>typeof x.presence.k==="number");
 const names=a=>a.map(x=>esc(String(x.presence.name).slice(0,20))).join(", ")||"—";
 const chipsOf=a=>a.map((x,idx)=>`<b style="animation-delay:${idx*.05}s">🔥 ${esc(String(x.presence.name).slice(0,20))}</b>`).join("");
+
+function avGrad(str){
+  let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))>>>0;
+  return AVGRADS[h%AVGRADS.length];
+}
+
 const playerCards=a=>a.map((x,idx)=>{
   const nm=String(x.presence.name).slice(0,20);
   const ini=esc((nm[0]||"?").toUpperCase());
-  return`<div class="p-card" style="animation-delay:${idx*.04}s"><div class="p-av">${ini}</div><div class="p-nm">${esc(nm)}</div></div>`;
+  return`<div class="p-card" style="animation-delay:${idx*.04}s">
+    <div class="p-av" style="background:${avGrad(nm)}">${ini}</div>
+    <div class="p-meta">
+      <div class="p-nm">${esc(nm)}</div>
+      <div class="p-st">Prêt à swiper</div>
+    </div>
+  </div>`;
 }).join("");
 
 function qr(){
@@ -528,7 +618,12 @@ function disconnectToIntro(msg){
 function phone(){
   if(ph==="intro"){
     const notice=kickNotice?`<div class="badge-end">${esc(kickNotice)}</div>`:"";
-    if(set(`<div class="panel hero">${notice}<div class="big"><i>🔥</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button></div>`)){
+    const tips=`<div class="phone-tips">
+      <div><b style="color:var(--red)">✕ Gauche</b>Nope</div>
+      <div><b style="color:var(--blue)">★ Haut</b>Super Like</div>
+      <div><b style="color:var(--green)">♥ Droite</b>Like</div>
+    </div>`;
+    if(set(`<div class="panel hero">${notice}<div class="big"><i>${SVG.flame}</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button>${tips}</div>`)){
       $("#start").onclick=join;
       const inp=$("#pz");
       if(inp){
@@ -541,11 +636,11 @@ function phone(){
   if(!room){set(hero("📡","Connexion…","Un instant, on te connecte à la salle."));return}
   const md=SES.mode;
   if(md==="lobby"){
-    set(hero("🔥","Prêt à swiper, "+esc(PS),"La séance va démarrer. Garde ton téléphone en main !"));
+    set(hero("🔥","Prêt à swiper, "+esc(PS),"Tu es visible sur le grand écran. La séance va démarrer !"));
   }
   else if(md==="vote"){
     if(sw[SES.i])set(hero("✅","Swipe enregistré","Regarde l’écran principal en attendant les autres."));
-    else if(set(cardHTML(P[SES.i],true)+`<div class="btns"><button aria-label="Passer" id="bn" style="color:var(--red);border-color:var(--red)">✕</button><button class="sm" aria-label="Super like" id="bs" style="color:var(--blue);border-color:var(--blue)">★</button><button aria-label="Liker" id="bl" style="color:var(--green);border-color:var(--green)">♥</button></div>`)){
+    else if(set(cardHTML(P[SES.i],true)+`<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)){
       $("#bn").onclick=()=>vote("nope");
       $("#bl").onclick=()=>vote("like");
       $("#bs").onclick=()=>vote("super");
@@ -575,7 +670,7 @@ function phone(){
 function bind(){
   const c=$(".card");if(!c)return;
   let x0=null,y0=0,pid=null;
-  const baseShadow="0 26px 60px -14px rgba(0,0,0,.52),inset 0 0 0 1px rgba(255,255,255,.16)";
+  const baseShadow="0 28px 64px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.18)";
 
   c.onpointerdown=e=>{
     if(sw[SES.i])return;
@@ -650,9 +745,15 @@ function board(){
   if(md==="lobby"){
     const centerContent=n===0
       ?`<div class="radar-zone">
-          <div class="radar"><span></span><span></span><span></span><b>🔥</b></div>
-          <p>Recherche de participants à proximité…</p>
-          <small>Scanne le QR code à gauche pour rejoindre la session</small>
+          <div class="radar">
+            <span></span><span></span><span></span>
+            <i class="orbit-tag t1">♥</i>
+            <i class="orbit-tag t2">★</i>
+            <i class="orbit-tag t3">✕</i>
+            <b>${SVG.flame}</b>
+          </div>
+          <p>En attente des participants…</p>
+          <small>Scanne le QR code à gauche pour apparaître dans le salon</small>
         </div>`
       :`<div class="p-grid">${playerCards(players)}</div>`;
 
@@ -662,7 +763,7 @@ function board(){
         <div class="qr-wrap"><div class="qr">${qr()}</div></div>
         <div class="link-row">
           <input class="lk" id="lk" value="${esc(JOIN)}" aria-label="Lien de la séance">
-          <button class="cp" id="cp" title="Copier le lien">📋</button>
+          <button class="cp" id="cp" title="Copier le lien">📋 Copier</button>
         </div>
         <div class="steps">
           <div><span>📱</span>1. Scanne</div>
@@ -676,11 +777,26 @@ function board(){
           <div class="l-head">
             <div>
               <h2>Scanne et choisis un pseudo</h2>
-              <div class="l-sub">Les participants apparaissent ici en temps réel</div>
+              <div class="l-sub">Les participants connectés s’affichent en direct ci-dessous</div>
             </div>
             <div class="count-badge">🔥 ${n} connecté${n>1?"s":""}</div>
           </div>
           ${centerContent}
+        </div>
+
+        <div class="guide-bar">
+          <div class="box g-item">
+            <div class="g-ic r">✕</div>
+            <div class="g-txt"><b>Glisse à gauche · NOPE</b><span>Pas pour ton infra</span></div>
+          </div>
+          <div class="box g-item">
+            <div class="g-ic b">★</div>
+            <div class="g-txt"><b>Glisse en haut · SUPER LIKE</b><span>Gros coup de cœur</span></div>
+          </div>
+          <div class="box g-item">
+            <div class="g-ic g">♥</div>
+            <div class="g-txt"><b>Glisse à droite · LIKE</b><span>Ça match à 100 %</span></div>
+          </div>
         </div>
 
         <div class="ctl">
@@ -692,7 +808,7 @@ function board(){
     after=()=>{
       $("#lk").onchange=e=>{JOIN=e.target.value.trim();last="";render()};
       $("#cp").onclick=async()=>{
-        try{await navigator.clipboard.writeText(JOIN);$("#cp").textContent="✅";setTimeout(()=>$("#cp").textContent="📋",1600)}catch(_){}
+        try{await navigator.clipboard.writeText(JOIN);$("#cp").textContent="✅ Copié";setTimeout(()=>$("#cp").textContent="📋 Copier",1600)}catch(_){}
       };
     };
   }
