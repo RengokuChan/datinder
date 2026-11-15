@@ -464,7 +464,7 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
 <script>
 const P = [
   {img:"img/natik.png", n:"Natick", a:"35 m", loc:"À 35 m sous la mer, au large de l’Écosse", g:["#0b5fd6","#12c2e9"], bio:"Petite mais profonde : 12 baies, 864 serveurs. C’est pas la taille qui compte, c’est ce qu’il y a dedans. Toujours bien humide… mais si c’est trop humide, ça marche moins bien. Pour une fois.", t:["Plongée","Discrète","Humide"], m:"Viens, on plonge ensemble."},
-  {img:"img/nordique.png", n:"La Nordique", a:"15 ans", loc:"À Hamina, Finlande, au bord de la Baltique", g:["#3b4cca","#8fd3f4"], bio:"Froide au premier abord, mais elle adore qu’on lui souffle dessus et qu’on l’arrose d’eau de mer. Ex-usine de papier, elle sait rester propre : jamais de contact direct sans échangeur. Il faut savoir se protéger.", t:["Free cooling","Énergie verte","Ex-usine de papier"], m:"J’ai les pieds froids, mais le cœur au chaud."},
+  {img:"img/nordique.png", n:"La Nordique", a:"Arctique", loc:"À Hamina, Finlande, au bord de la Baltique", g:["#3b4cca","#8fd3f4"], bio:"Froide au premier abord, mais elle adore qu’on lui souffle dessus et qu’on l’arrose d’eau de mer. Ex-usine de papier, elle sait rester propre : jamais de contact direct sans échangeur. Il faut savoir se protéger.", t:["Free cooling","Énergie verte","Ex-usine de papier"], m:"J’ai les pieds froids, mais le cœur au chaud."},
   {img:"img/forteresse.png", n:"La Forteresse", a:"18 ans", loc:"À 30 m sous le granit de Stockholm", g:["#232526","#5b6770"], bio:"Difficile à avoir : badge, sas, portes de 40 cm. Elle demande tes empreintes avant le premier rendez-vous. Mais une fois dedans, elle tient la distance : deux moteurs de sous-marin en secours.", t:["Ex-abri antiatomique","Biométrie","Style James Bond"], m:"Pas besoin de frapper. Mais prépare ton badge."},
   {img:"img/reveuse.jpg", n:"La Rêveuse", a:"800 km", loc:"À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ?", t:["En orbite","Solaire illimité","15 min chrono"], m:"Je t’appelle depuis l’orbite. Ne coupe pas."},
   {img:"img/genereuse.png", n:"La Généreuse", a:"Médaillée", loc:"Près de Paris, à deux pas de chez toi", g:["#f12711","#f5af19"], bio:"Médaillée olympique, j’ai chauffé la piscine des JO 2024. Chaude toute l’année, je ne garde rien pour moi. Je cherche quelqu’un qui sait se jeter à l’eau.", t:["Toujours chaude","Chauffe les piscines","1 000 logements"], m:"Chez moi, on partage tout. Même la chaleur."}
@@ -914,82 +914,3 @@ function openHost(retry) {
 
 function connectHost() {
   if (ph !== "play" || !hostId) return;
-  const gen = ++connGen;
-  if (NET) { try { NET.close() } catch (_) { } NET = null }
-  if (peerObj) { try { peerObj.destroy() } catch (_) { } peerObj = null }
-
-  const pr = new Peer();
-  peerObj = pr;
-
-  pr.on("open", () => {
-    if (gen !== connGen || ph !== "play") return;
-    const c = pr.connect(hostId);
-    c.on("open", () => {
-      if (gen !== connGen || ph !== "play") { try { c.close() } catch (_) { } return }
-      NET = c;
-      room = { presence: p => { MY = { ...MY, ...p }; try { if (NET && NET.open && MY.name) NET.send({ t: "pres", p: MY }) } catch (e) { } } };
-      room.presence({});
-      last = ""; render();
-    });
-    c.on("data", m => {
-      if (gen !== connGen || !m) return;
-      if (m.t === "ended") {
-        disconnectToIntro("Séance terminée – Attends la nouvelle séance !");
-        return;
-      }
-      if (m.t === "kick") {
-        disconnectToIntro(m.reason === "reset" ? "Nouvelle séance ! Entre ton pseudo." : "Séance terminée – Déconnecté de la salle");
-        return;
-      }
-      if (m.t === "ses" && m.s) {
-        const nw = m.s;
-        if (nw.mode === "end") {
-          disconnectToIntro("Séance terminée – Déconnecté de la salle");
-          return;
-        }
-        if (MY.sid && nw.sid !== MY.sid) {
-          disconnectToIntro("Nouvelle séance ! Entre ton pseudo.");
-          return;
-        }
-        SES = nw;
-        MY.sid = nw.sid;
-        last = "";
-        if (room) room.presence({});
-        render();
-      }
-    });
-    c.on("close", () => {
-      if (gen !== connGen) return;
-      NET = null; room = null;
-      if (ph === "play") {
-        disconnectToIntro("Déconnecté de la salle");
-      }
-    });
-  });
-
-  pr.on("error", () => {
-    if (gen !== connGen) return;
-    if (ph === "play") {
-      setTimeout(() => { if (gen === connGen && ph === "play" && !NET) connectHost() }, 1500);
-    }
-  });
-}
-
-function startPhone(id) {
-  hostId = id;
-}
-
-function start() {
-  HOST = !location.hash.startsWith("#j=");
-  if (HOST) {
-    const appEl = $("#app");
-    if (appEl) appEl.classList.add("wide");
-    SES = { mode: "lobby", i: 0, sid: sid() };
-    openHost(false);
-  }
-  else startPhone(location.hash.slice(3));
-  render();
-}
-</script>
-</body>
-</html>
