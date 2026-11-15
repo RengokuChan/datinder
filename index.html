@@ -920,7 +920,7 @@ function openHost(retry){
   pr.on("open",()=>{JOIN=location.href.split("#")[0]+"#j="+id;room=true;last="";render()});
   pr.on("connection",c=>{
     if(SES.mode==="end"){
-      c.on("open",()=>{try{c.send({t:"ended"})}catch(_){}setTimeout(()=>{try{c.close()}catch(_){}},150)});
+      c.on("open",()=>{try{c.send({t:"ended"})}catch(_){}setTimeout(()=>{try{c.close()}catch(_}{}},150)});
       return;
     }
     CONNS.push(c);
@@ -1032,7 +1032,6 @@ addEventListener("keydown",e=>{
 });
 addEventListener("hashchange",()=>location.reload());
 
-// Lancement sécurisé au chargement du DOM
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded", start);
 }else{
