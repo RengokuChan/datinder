@@ -478,7 +478,7 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
   <div id="main"></div>
 </div>
 <script>
-/* Les 5 profils avec tes illustrations personnalisées dans le dossier "img/" */
+/* Les 5 profils dans l'ordre exact demandé : Natick -> La Nordique -> La Forteresse -> La Rêveuse -> La Généreuse */
 const P=[
 {img:"img/natik.png", e:"🧜‍♀️", n:"Natick", a:"35 m", loc:"📍 À 35 m sous la mer, au large de l’Écosse", g:["#0b5fd6","#12c2e9"], bio:"Petite mais profonde : 12 baies, 864 serveurs. C’est pas la taille qui compte, c’est ce qu’il y a dedans. Toujours bien humide… mais si c’est trop humide, ça marche moins bien. Pour une fois. 😏", t:["🌊 Plongée","🤫 Discrète","💦 Humide"], m:"Viens, on plonge ensemble. 🌊"},
 {img:"img/nordique.png", e:"🧊", n:"La Nordique", a:"15 ans", loc:"📍 À Hamina, Finlande, au bord de la Baltique", g:["#3b4cca","#8fd3f4"], bio:"Froide au premier abord, mais elle adore qu’on lui souffle dessus et qu’on l’arrose d’eau de mer. Ex-usine de papier, elle sait rester propre : jamais de contact direct sans échangeur. Il faut savoir se protéger. 😉", t:["❄️ Free cooling","🌿 Énergie verte","📜 Ex-usine de papier"], m:"J’ai les pieds froids, mais le cœur au chaud. ❄️"},
@@ -510,7 +510,8 @@ const sid=()=>Math.random().toString(36).slice(2,8);
 let room=null,HOST=false,PS="",SES={mode:"lobby",i:0,sid:"0"},ph="intro",sw={},mk=null,peers=[],last="",JOIN="",CONNS=[],PRES={},MY={},NET=null,dragging=false,peerObj=null,hostId="",kickNotice="",connGen=0;
 const ok=["like","super","nope"];
 
-$("#th").onclick=()=>{
+const thBtn = $("#th");
+if(thBtn) thBtn.onclick=()=>{
   const cur=document.documentElement.getAttribute("data-theme");
   document.documentElement.setAttribute("data-theme",cur==="dark"?"light":"dark");
 };
@@ -555,11 +556,14 @@ const playerCards=a=>a.map((x,idx)=>{
 
 function qr(){
   try{
-    const q=qrcode(0,"M");q.addData(JOIN);q.make();
-    const n=q.getModuleCount();let d="";
-    for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+4} ${r+4}h1v1h-1z`;
-    return`<svg viewBox="0 0 ${n+8} ${n+8}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code pour rejoindre"><path d="${d}" fill="#111"/></svg>`;
-  }catch(e){return`<div class="who">${esc(JOIN)}</div>`}
+    if(typeof qrcode !== 'undefined') {
+      const q=qrcode(0,"M");q.addData(JOIN);q.make();
+      const n=q.getModuleCount();let d="";
+      for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+4} ${r+4}h1v1h-1z`;
+      return`<svg viewBox="0 0 ${n+8} ${n+8}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code pour rejoindre"><path d="${d}" fill="#111"/></svg>`;
+    }
+  }catch(e){}
+  return`<div class="who" style="word-break:break-all;font-size:11px;padding:10px;text-align:center;">${esc(JOIN)}</div>`;
 }
 
 const avatarHTML=p=>p.img
@@ -585,12 +589,13 @@ function cardHTML(p,live,idx=SES.i){
   </div>`;
 }
 
-function set(h){if(dragging||h===last)return false;last=h;$("#main").innerHTML=h;return true}
+function set(h){if(dragging||h===last)return false;last=h;const m=$("#main");if(m)m.innerHTML=h;return true}
 const hero=(icon,h,w,extra="")=>`<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w||""}</div>${extra}</div>`;
 
 function render(){
   HOST?board():phone();
   const c=$("#cnt");
+  if(!c)return;
   if(!HOST&&ph==="play"&&SES.mode==="vote"){
     c.textContent=(SES.i+1)+" / "+P.length;
   }else if(HOST&&room){
@@ -630,7 +635,8 @@ function phone(){
       <div><b style="color:var(--green)">♥ Droite</b>Like</div>
     </div>`;
     if(set(`<div class="panel hero">${notice}<div class="big"><i>${SVG.flame}</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button>${tips}</div>`)){
-      $("#start").onclick=join;
+      const startBtn=$("#start");
+      if(startBtn) startBtn.onclick=join;
       const inp=$("#pz");
       if(inp){
         inp.focus();
@@ -647,9 +653,10 @@ function phone(){
   else if(md==="vote"){
     if(sw[SES.i])set(hero("✅","Swipe enregistré","Regarde l’écran principal en attendant les autres."));
     else if(set(cardHTML(P[SES.i],true)+`<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)){
-      $("#bn").onclick=()=>vote("nope");
-      $("#bl").onclick=()=>vote("like");
-      $("#bs").onclick=()=>vote("super");
+      const bn=$("#bn"), bl=$("#bl"), bs=$("#bs");
+      if(bn)bn.onclick=()=>vote("nope");
+      if(bl)bl.onclick=()=>vote("like");
+      if(bs)bs.onclick=()=>vote("super");
       bind();
     }
   }
@@ -690,9 +697,10 @@ function bind(){
     const d=e.clientX-x0,u=y0-e.clientY;
     c.style.transform=`translate3d(${d}px,${-Math.max(0,u)/3}px,0) rotate(${d/17}deg)`;
     const l=Math.min(1,Math.max(0,d/105)),n=Math.min(1,Math.max(0,-d/105)),s=Math.abs(d)<70?Math.min(1,Math.max(0,u/120)):0;
-    $(".st.like").style.opacity=l;
-    $(".st.nope").style.opacity=n;
-    $(".st.sup").style.opacity=s;
+    const slike=$(".st.like"), snope=$(".st.nope"), ssup=$(".st.sup");
+    if(slike)slike.style.opacity=l;
+    if(snope)snope.style.opacity=n;
+    if(ssup)ssup.style.opacity=s;
     if(s>.35)c.style.boxShadow=`0 24px 60px rgba(42,182,255,.55),inset 0 0 0 3px var(--blue)`;
     else if(l>.2)c.style.boxShadow=`0 24px 60px rgba(33,208,122,.5),inset 0 0 0 3px var(--green)`;
     else if(n>.2)c.style.boxShadow=`0 24px 60px rgba(255,68,88,.5),inset 0 0 0 3px var(--red)`;
@@ -811,9 +819,10 @@ function board(){
       </div>
     </div>`;
     after=()=>{
-      $("#lk").onchange=e=>{JOIN=e.target.value.trim();last="";render()};
-      $("#cp").onclick=async()=>{
-        try{await navigator.clipboard.writeText(JOIN);$("#cp").textContent="✅ Copié";setTimeout(()=>$("#cp").textContent="📋 Copier",1600)}catch(_){}
+      const lk=$("#lk"), cp=$("#cp");
+      if(lk)lk.onchange=e=>{JOIN=e.target.value.trim();last="";render()};
+      if(cp)cp.onclick=async()=>{
+        try{await navigator.clipboard.writeText(JOIN);cp.textContent="✅ Copié";setTimeout(()=>cp.textContent="📋 Copier",1600)}catch(_){}
       };
     };
   }
@@ -1002,7 +1011,12 @@ function startPhone(id){
 
 function start(){
   HOST=!location.hash.startsWith("#j=");
-  if(HOST){$("#app").classList.add("wide");SES={mode:"lobby",i:0,sid:sid()};openHost(false)}
+  if(HOST){
+    const appEl = $("#app");
+    if(appEl) appEl.classList.add("wide");
+    SES={mode:"lobby",i:0,sid:sid()};
+    openHost(false);
+  }
   else startPhone(location.hash.slice(3));
   render();
 }
@@ -1017,5 +1031,11 @@ addEventListener("keydown",e=>{
   }
 });
 addEventListener("hashchange",()=>location.reload());
-start();
+
+// Lancement sécurisé au chargement du DOM
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded", start);
+}else{
+  start();
+}
 </script></body></html>
