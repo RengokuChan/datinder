@@ -505,7 +505,7 @@ const sid = () => Math.random().toString(36).slice(2, 8);
 let room = null, HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, peers = [], last = "", JOIN = "", CONNS = [], PRES = {}, MY = {}, NET = null, dragging = false, peerObj = null, hostId = "", kickNotice = "", connGen = 0;
 const ok = ["like", "super", "nope"];
 
-document.addEventListener("DOMContentLoaded", () => {
+function initApp() {
   const thBtn = $("#th");
   if (thBtn) {
     thBtn.onclick = () => {
@@ -529,7 +529,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addEventListener("hashchange", () => location.reload());
   start();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
 
 function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
   const fx = $("#fx"); if (!fx) return;
