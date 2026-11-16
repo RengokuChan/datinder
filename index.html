@@ -763,7 +763,7 @@ function join() {
   ph = "play";
   sw = {};
   mk = null;
-  MY = { name: PS, sid: "", v: [], k: null };
+  MY = { name: PS, sid: SES.sid || "0", v: [], k: null };
   connectHost();
   last = ""; render();
 }
@@ -991,10 +991,6 @@ function connectHost() {
         const nw = m.s;
         if (nw.mode === "end") {
           disconnectToIntro("🏁 Séance terminée — Déconnecté de la salle");
-          return;
-        }
-        if (MY.sid && nw.sid !== MY.sid) {
-          disconnectToIntro("🔄 Nouvelle séance ! Entre ton pseudo.");
           return;
         }
         SES = nw;
