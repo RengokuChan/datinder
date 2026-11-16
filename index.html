@@ -497,7 +497,6 @@ const sid = () => Math.random().toString(36).slice(2, 8);
 let PS = "", ph = "intro", sw = {}, mk = null, last = "", MY_ID = localStorage.getItem('datinder_my_id') || sid(), dragging = false;
 localStorage.setItem('datinder_my_id', MY_ID);
 
-// État centralisé partagé via localStorage pour que n'importe quel appareil (PC ou téléphones) lise et écrive en temps réel
 function getStore() {
   try {
     const data = localStorage.getItem('datinder_room_state');
@@ -514,8 +513,17 @@ function saveStore(st) {
 
 let ST = getStore();
 
+// Forçage intelligent : si l'URL ne contient PAS #join, cet onglet devient automatiquement l'Hôte principal !
+if (!location.hash.includes('#join')) {
+  if (!ST.hostId || ST.hostId !== MY_ID) {
+    ST.hostId = MY_ID;
+    if (!ST.ses) ST.ses = { mode: "lobby", i: 0, sid: sid() };
+    saveStore(ST);
+  }
+}
+
 function isHost() {
-  return ST.hostId === MY_ID;
+  return !location.hash.includes('#join') && ST.hostId === MY_ID;
 }
 
 function initApp() {
@@ -630,6 +638,8 @@ function render() {
     if (appEl && !appEl.classList.contains("wide")) appEl.classList.add("wide");
     board();
   } else {
+    const appEl = $("#app");
+    if (appEl && appEl.classList.contains("wide")) appEl.classList.remove("wide");
     phone();
   }
   const c = $("#cnt");
@@ -794,7 +804,7 @@ function board() {
 
     h = `<div class="lobby-wrap">
       <div class="box qr-col">
-        <div class="live-pill"><span class="dot"></span>Session locale active</div>
+        <div class="live-pill"><span class="dot"></span>Session hôte active</div>
         <div class="qr-wrap"><div class="qr">${qr(joinLink)}</div></div>
         <div class="link-row">
           <input class="lk" id="lk" value="${esc(joinLink)}" aria-label="Lien de la séance">
@@ -836,7 +846,7 @@ function board() {
 
         <div class="ctl">
           <button class="go" id="a1">Démarrer le swipe</button>
-          <button class="go g2" id="a2">Devenir Hôte / Réinitialiser</button>
+          <button class="go g2" id="a2">Réinitialiser la séance</button>
         </div>
       </div>
     </div>`;
@@ -927,28 +937,14 @@ function adv() {
 }
 
 function start() {
-  ST = getStore();
-  
-  // Si aucun hôte n'est défini ou si l'URL contient #join, on devient client. Sinon le premier devient l'hôte.
-  if (!ST.hostId || location.hash.includes('#join')) {
-    if (!location.hash.includes('#join') && !ST.hostId) {
-      ST.hostId = MY_ID;
-      ST.ses = { mode: "lobby", i: 0, sid: sid() };
-      saveStore(ST);
-    }
-  }
-
   render();
-
-  // Boucle de synchro automatique permanente (toutes les 500ms) pour rafraîchir l'écran instantanément
   setInterval(() => {
     const fresh = getStore();
-    // Si la session ou les présences ont changé, on re-render
     if (JSON.stringify(fresh) !== JSON.stringify(ST)) {
       ST = fresh;
       render();
     }
-  }, 500);
+  }, 400);
 }
 </script>
 </body>
