@@ -858,10 +858,13 @@ function board() {
     };
   }
   else if (md === "vote") {
+    // Correction : on réintègre la grille des joueurs connectés (p-grid) sous le compteur de votes
     h = `<div class="board">${cardHTML(p, false)}<div class="side">
       <h2>Profil ${SES.i + 1} / ${P.length}</h2>
       <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
       <div class="bar"><i style="width:${n ? 100 * t.n / n : 0}%;background:var(--grad)"></i></div>
+      <div class="who" style="font-weight:700;margin-top:8px">Joueurs connectés (${n}) :</div>
+      <div class="p-grid" style="margin-bottom:10px">${playerCards(players)}</div>
       <div class="chips">${chipsOf(players.filter(x => vt(x, SES.i)))}</div>
       <div class="ctl"><button class="go" id="a1">Voir les matchs maintenant</button></div>
     </div></div>`;
