@@ -505,7 +505,7 @@ function initApp() {
     };
   }
 
-  // Écouteur de stockage local ultra simple (celui d'origine)
+  // Écouteur standard
   window.addEventListener("storage", e => {
     if (e.key === "dt_state") {
       try {
@@ -519,6 +519,32 @@ function initApp() {
       } catch(err){}
     }
   });
+
+  // Vérification continue pour assurer la fluidité de la liaison entre appareils
+  setInterval(() => {
+    try {
+      if (HOST) {
+        const pData = localStorage.getItem("dt_pres");
+        if (pData) {
+          const d = JSON.parse(pData);
+          if (d && d.id && JSON.stringify(PRES[d.id]) !== JSON.stringify(d.data)) {
+            PRES[d.id] = d.data;
+            render();
+          }
+        }
+      } else {
+        const sData = localStorage.getItem("dt_state");
+        if (sData) {
+          const d = JSON.parse(sData);
+          if (d && d.ses && (d.ses.mode !== SES.mode || d.ses.i !== SES.i || d.ses.sid !== SES.sid)) {
+            SES = d.ses;
+            PRES = d.pres || {};
+            render();
+          }
+        }
+      }
+    } catch(e){}
+  }, 300);
 
   start();
 }
@@ -900,7 +926,6 @@ function start() {
     SES = { mode: "lobby", i: 0, sid: sid() };
     JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
   } else {
-    // Si c'est un client, on charge l'état stocké initialement
     try {
       const d = JSON.parse(localStorage.getItem("dt_state"));
       if (d) { SES = d.ses; PRES = d.pres || {}; }
