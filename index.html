@@ -932,7 +932,14 @@ function sync() { peers = Object.keys(PRES).map(id => ({ kind: "viewer", peer: i
 function openHost(retry) {
   let id = "datinder-" + Math.random().toString(36).slice(2, 9);
   try { id = localStorage.getItem("dtk") || id; localStorage.setItem("dtk", id) } catch (e) { }
-  const pr = new Peer(id);
+  
+  // Utilisation explicite du cloud PeerJS pour éviter le chargement dans le vide
+  const pr = new Peer(id, {
+    host: '0.peerjs.com',
+    port: 443,
+    secure: true
+  });
+
   pr.on("open", () => { JOIN = location.href.split("#")[0] + "#j=" + id; room = true; last = ""; render() });
   pr.on("connection", c => {
     if (SES.mode === "end") {
@@ -964,7 +971,12 @@ function connectHost() {
   if (NET) { try { NET.close() } catch (_) { } NET = null }
   if (peerObj) { try { peerObj.destroy() } catch (_) { } peerObj = null }
 
-  const pr = new Peer();
+  // Utilisation explicite du cloud PeerJS pour les téléphones également
+  const pr = new Peer({
+    host: '0.peerjs.com',
+    port: 443,
+    secure: true
+  });
   peerObj = pr;
 
   pr.on("open", () => {
