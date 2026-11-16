@@ -503,7 +503,6 @@ const sid = () => Math.random().toString(36).slice(2, 8);
 
 let HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, last = "", JOIN = "", PRES = {}, MY_ID = sid(), dragging = false;
 
-// Double canal : BroadcastChannel (onglets du même navigateur) + localStorage (vrais téléphones sur le même réseau/domaine)
 const channel = new BroadcastChannel('datinder_sync_channel');
 
 function loadStoragePres() {
@@ -550,7 +549,6 @@ channel.onmessage = event => {
   }
 };
 
-// Écoute aussi les changements de localStorage pour synchroniser plusieurs appareils ou onglets instantanément
 window.addEventListener('storage', e => {
   if (e.key === 'datinder_pres') {
     loadStoragePres();
@@ -986,11 +984,9 @@ function start() {
     const appEl = $("#app");
     if (appEl) appEl.classList.add("wide");
     SES = { mode: "lobby", i: 0, sid: sid() };
-    // Utilise l'URL actuelle propre du navigateur (que ce soit localhost, IP locale ou GitHub)
     JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
     saveStoragePres();
   } else {
-    // Si c'est un client (téléphone), on charge l'état stocké
     loadStoragePres();
   }
   render();
