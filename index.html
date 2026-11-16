@@ -502,9 +502,33 @@ const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,""
 const sid = () => Math.random().toString(36).slice(2, 8);
 
 let HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, last = "", JOIN = "", PRES = {}, MY_ID = sid(), dragging = false;
-const ok = ["like", "super", "nope"];
 
-const channel = new BroadcastChannel('datinder_local_room');
+// Double canal : BroadcastChannel (onglets du même navigateur) + localStorage (vrais téléphones sur le même réseau/domaine)
+const channel = new BroadcastChannel('datinder_sync_channel');
+
+function loadStoragePres() {
+  try {
+    const raw = localStorage.getItem('datinder_pres');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      PRES = { ...PRES, ...parsed };
+    }
+    const rawSes = localStorage.getItem('datinder_ses');
+    if (rawSes && !HOST) {
+      const parsedSes = JSON.parse(rawSes);
+      if (parsedSes && parsedSes.mode) SES = parsedSes;
+    }
+  } catch(e) {}
+}
+
+function saveStoragePres() {
+  try {
+    localStorage.setItem('datinder_pres', JSON.stringify(PRES));
+    if (HOST) {
+      localStorage.setItem('datinder_ses', JSON.stringify(SES));
+    }
+  } catch(e) {}
+}
 
 channel.onmessage = event => {
   const msg = event.data;
@@ -512,6 +536,7 @@ channel.onmessage = event => {
   if (HOST) {
     if (msg.type === "pres") {
       PRES[msg.id] = msg.data;
+      saveStoragePres();
       broadcastState();
       render();
     }
@@ -525,8 +550,20 @@ channel.onmessage = event => {
   }
 };
 
+// Écoute aussi les changements de localStorage pour synchroniser plusieurs appareils ou onglets instantanément
+window.addEventListener('storage', e => {
+  if (e.key === 'datinder_pres') {
+    loadStoragePres();
+    render();
+  } else if (e.key === 'datinder_ses' && !HOST) {
+    loadStoragePres();
+    render();
+  }
+});
+
 function broadcastState() {
   if (!HOST) return;
+  saveStoragePres();
   channel.postMessage({ type: "state", ses: SES, pres: PRES });
 }
 
@@ -576,7 +613,10 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
   }
 }
 
-const pl = () => Object.keys(PRES).map(id => ({ peer: id, presence: PRES[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === SES.sid);
+const pl = () => {
+  loadStoragePres();
+  return Object.keys(PRES).map(id => ({ peer: id, presence: PRES[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === SES.sid);
+};
 const vt = (p, i) => (p.presence.v || [])[i];
 const tally = () => { const s = pl(), k = SES.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
 const picks = () => pl().filter(x => typeof x.presence.k === "number");
@@ -711,6 +751,8 @@ function phone() {
 
 function sendPresence(data) {
   const payload = { name: PS, sid: SES.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
+  PRES[MY_ID] = payload;
+  saveStoragePres();
   channel.postMessage({ type: "pres", id: MY_ID, data: payload });
 }
 
@@ -858,7 +900,6 @@ function board() {
     };
   }
   else if (md === "vote") {
-    // Correction : on réintègre la grille des joueurs connectés (p-grid) sous le compteur de votes
     h = `<div class="board">${cardHTML(p, false)}<div class="side">
       <h2>Profil ${SES.i + 1} / ${P.length}</h2>
       <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
@@ -910,6 +951,7 @@ function board() {
 function resetSession() {
   channel.postMessage({ type: "kick", reason: "🔄 Nouvelle séance !" });
   PRES = {};
+  saveStoragePres();
   setSes({ sid: sid(), mode: "lobby", i: 0 });
 }
 
@@ -944,9 +986,15 @@ function start() {
     const appEl = $("#app");
     if (appEl) appEl.classList.add("wide");
     SES = { mode: "lobby", i: 0, sid: sid() };
+    // Utilise l'URL actuelle propre du navigateur (que ce soit localhost, IP locale ou GitHub)
     JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
+    saveStoragePres();
+  } else {
+    // Si c'est un client (téléphone), on charge l'état stocké
+    loadStoragePres();
   }
   render();
+  setInterval(() => { if (HOST) loadStoragePres(); }, 1000);
 }
 </script>
 </body>
