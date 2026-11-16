@@ -494,40 +494,43 @@ const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g, "$1").replace(/\s+/g, " ").trim();
 const sid = () => Math.random().toString(36).slice(2, 8);
 
-let MY_ID = localStorage.getItem("dt_my_id") || sid();
-localStorage.setItem("dt_my_id", MY_ID);
+let MY_ID = localStorage.getItem("dt_client_id") || sid();
+localStorage.setItem("dt_client_id", MY_ID);
 
 let PS = "", ph = "intro", sw = {}, mk = null, last = "", dragging = false;
 
-// Gestionnaire global unique stocké dans localStorage
-function getRoom() {
+// Canal de communication instantané entre fenêtres / onglets / appareils locaux
+const bc = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('datinder_channel') : null;
+
+function getStore() {
   try {
-    const raw = localStorage.getItem("dt_global_room");
+    const raw = localStorage.getItem("datinder_state");
     if (raw) return JSON.parse(raw);
   } catch(e){}
   return {
-    host: null,
+    hostId: null,
     ses: { mode: "lobby", i: 0, sid: sid() },
     pres: {}
   };
 }
 
-function saveRoom(r) {
+function saveStore(st) {
   try {
-    localStorage.setItem("dt_global_room", JSON.stringify(r));
+    localStorage.setItem("datinder_state", JSON.stringify(st));
+    if (bc) bc.postMessage(st);
   } catch(e){}
 }
 
-let ROOM = getRoom();
+let STORE = getStore();
 
-// Détermination automatique du rôle : si l'URL contient #join, c'est un client, sinon le premier devient l'hôte
+// Si l'URL contient #join ou un hash, ou si un hôte existe déjà et qu'on n'est pas cet hôte, on se comporte en client
 function isHost() {
   if (location.hash.includes("join")) return false;
-  if (!ROOM.host) {
-    ROOM.host = MY_ID;
-    saveRoom(ROOM);
+  if (!STORE.hostId) {
+    STORE.hostId = MY_ID;
+    saveStore(STORE);
   }
-  return ROOM.host === MY_ID;
+  return STORE.hostId === MY_ID;
 }
 
 function initApp() {
@@ -539,14 +542,34 @@ function initApp() {
     };
   }
 
-  // Boucle de synchronisation universelle permanente (tous les 250ms)
+  // Écoute instantanée via BroadcastChannel
+  if (bc) {
+    bc.onmessage = (e) => {
+      if (e.data) {
+        STORE = e.data;
+        render();
+      }
+    };
+  }
+
+  // Écoute de secours multi-onglets storage
+  window.addEventListener("storage", e => {
+    if (e.key === "datinder_state" && e.newValue) {
+      try {
+        STORE = JSON.parse(e.newValue);
+        render();
+      } catch(err){}
+    }
+  });
+
+  // Battement de cœur de synchronisation (toutes les 200ms)
   setInterval(() => {
-    const fresh = getRoom();
-    if (JSON.stringify(fresh) !== JSON.stringify(ROOM)) {
-      ROOM = fresh;
+    const fresh = getStore();
+    if (JSON.stringify(fresh) !== JSON.stringify(STORE)) {
+      STORE = fresh;
       render();
     }
-  }, 250);
+  }, 200);
 
   start();
 }
@@ -572,11 +595,11 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
 }
 
 const pl = () => {
-  ROOM = getRoom();
-  return Object.keys(ROOM.pres || {}).map(id => ({ peer: id, presence: ROOM.pres[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === ROOM.ses.sid);
+  STORE = getStore();
+  return Object.keys(STORE.pres || {}).map(id => ({ peer: id, presence: STORE.pres[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === STORE.ses.sid);
 };
 const vt = (p, i) => (p.presence.v || [])[i];
-const tally = () => { const s = pl(), k = ROOM.ses.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
+const tally = () => { const s = pl(), k = STORE.ses.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
 const picks = () => pl().filter(x => typeof x.presence.k === "number");
 const names = a => a.map(x => esc(String(x.presence.name).slice(0, 20))).join(", ") || "—";
 const chipsOf = a => a.map((x, idx) => `<b style="animation-delay:${idx * .05}s">🔥 ${esc(String(x.presence.name).slice(0, 20))}</b>`).join("");
@@ -609,7 +632,7 @@ const avatarHTML = p => p.img
   ? `<span class="av-box"><img src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>${p.e}</i></span>`
   : `<span class="av-box"><i>${p.e}</i></span>`;
 
-function cardHTML(p, live, idx = ROOM.ses.i) {
+function cardHTML(p, live, idx = STORE.ses.i) {
   const segs = P.map((_, j) => `<i class="${j === idx ? "on" : j < idx ? "past" : ""}"></i>`).join("");
   const pic = p.img ? `<img class="pic" src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.parentElement.classList.add('has-pic')" onerror="this.remove()">` : "";
   return `<div class="card" style="background:linear-gradient(155deg,${p.g[0]},${p.g[1]})">
@@ -632,7 +655,7 @@ function set(h) { if (dragging || h === last) return false; last = h; const m = 
 const hero = (icon, h, w, extra = "") => `<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w || ""}</div>${extra}</div>`;
 
 function render() {
-  ROOM = getRoom();
+  STORE = getStore();
   if (isHost()) {
     const appEl = $("#app");
     if (appEl && !appEl.classList.contains("wide")) appEl.classList.add("wide");
@@ -644,8 +667,8 @@ function render() {
   }
   const c = $("#cnt");
   if (!c) return;
-  if (!isHost() && ph === "play" && ROOM.ses.mode === "vote") {
-    c.textContent = (ROOM.ses.i + 1) + " / " + P.length;
+  if (!isHost() && ph === "play" && STORE.ses.mode === "vote") {
+    c.textContent = (STORE.ses.i + 1) + " / " + P.length;
   } else if (isHost()) {
     const n = pl().length;
     c.innerHTML = `<span class="dot"></span>${n} joueur${n > 1 ? "s" : ""}`;
@@ -672,13 +695,13 @@ function phone() {
     }
     return;
   }
-  const md = ROOM.ses.mode;
+  const md = STORE.ses.mode;
   if (md === "lobby") {
     set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es connecté au grand écran. La séance va démarrer !"));
   }
   else if (md === "vote") {
-    if (sw[ROOM.ses.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
-    else if (set(cardHTML(P[ROOM.ses.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
+    if (sw[STORE.ses.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
+    else if (set(cardHTML(P[STORE.ses.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
       const bn = $("#bn"), bl = $("#bl"), bs = $("#bs");
       if (bn) bn.onclick = () => vote("nope");
       if (bl) bl.onclick = () => vote("like");
@@ -687,7 +710,7 @@ function phone() {
     }
   }
   else if (md === "stats") {
-    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[ROOM.ses.i].n + " s’affichent."));
+    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[STORE.ses.i].n + " s’affichent."));
   }
   else if (md === "match") {
     if (mk === null) {
@@ -707,10 +730,10 @@ function phone() {
 }
 
 function sendPresence(data) {
-  ROOM = getRoom();
-  if (!ROOM.pres) ROOM.pres = {};
-  ROOM.pres[MY_ID] = { name: PS, sid: ROOM.ses.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
-  saveRoom(ROOM);
+  STORE = getStore();
+  if (!STORE.pres) STORE.pres = {};
+  STORE.pres[MY_ID] = { name: PS, sid: STORE.ses.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
+  saveStore(STORE);
 }
 
 function bind() {
@@ -719,7 +742,7 @@ function bind() {
   const baseShadow = "0 28px 64px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.18)";
 
   c.onpointerdown = e => {
-    if (sw[ROOM.ses.i]) return;
+    if (sw[STORE.ses.i]) return;
     x0 = e.clientX; y0 = e.clientY; pid = e.pointerId; dragging = true;
     try { c.setPointerCapture(pid) } catch (_) { }
     c.style.transition = "none"; c.style.animation = "none";
@@ -759,8 +782,8 @@ function bind() {
 }
 
 function vote(k) {
-  if (ROOM.ses.mode !== "vote" || sw[ROOM.ses.i]) return;
-  const c = $(".card"), i = ROOM.ses.i, x = k === "nope" ? -1 : 1;
+  if (STORE.ses.mode !== "vote" || sw[STORE.ses.i]) return;
+  const c = $(".card"), i = STORE.ses.i, x = k === "nope" ? -1 : 1;
   sw[i] = k; dragging = false;
   if (k === "super") burst(["⭐", "💙", "✨"]);
   if (c) {
@@ -784,7 +807,7 @@ function join() {
 }
 
 function board() {
-  const md = ROOM.ses.mode, p = P[ROOM.ses.i], players = pl(), n = players.length, t = tally(); let h, after;
+  const md = STORE.ses.mode, p = P[STORE.ses.i], players = pl(), n = players.length, t = tally(); let h, after;
   const joinLink = location.href.split("#")[0] + "#join";
 
   if (md === "lobby") {
@@ -860,12 +883,12 @@ function board() {
   }
   else if (md === "vote") {
     h = `<div class="board">${cardHTML(p, false)}<div class="side">
-      <h2>Profil ${ROOM.ses.i + 1} / ${P.length}</h2>
+      <h2>Profil ${STORE.ses.i + 1} / ${P.length}</h2>
       <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
       <div class="bar"><i style="width:${n ? 100 * t.n / n : 0}%;background:var(--grad)"></i></div>
       <div class="who" style="font-weight:700;margin-top:8px">Joueurs connectés (${n}) :</div>
       <div class="p-grid" style="margin-bottom:10px">${playerCards(players)}</div>
-      <div class="chips">${chipsOf(players.filter(x => vt(x, ROOM.ses.i)))}</div>
+      <div class="chips">${chipsOf(players.filter(x => vt(x, STORE.ses.i)))}</div>
       <div class="ctl"><button class="go" id="a1">Voir les matchs maintenant</button></div>
     </div></div>`;
   }
@@ -877,7 +900,7 @@ function board() {
       ${rw("♥ Likes", t.like, "var(--green)")}
       ${rw("★ Super likes", t.sup, "var(--blue)")}
       ${rw("✕ Passées", t.nope, "var(--red)")}
-      <div class="ctl"><button class="go" id="a1">${ROOM.ses.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
+      <div class="ctl"><button class="go" id="a1">${STORE.ses.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
     </div></div>`;
   }
   else {
@@ -908,31 +931,31 @@ function board() {
 }
 
 function resetSession() {
-  ROOM = getRoom();
-  ROOM.ses = { sid: sid(), mode: "lobby", i: 0 };
-  ROOM.pres = {};
-  saveRoom(ROOM);
+  STORE = getStore();
+  STORE.ses = { sid: sid(), mode: "lobby", i: 0 };
+  STORE.pres = {};
+  saveStore(STORE);
   last = "";
   render();
 }
 
 function setSes(p) {
-  ROOM = getRoom();
-  const prev = ROOM.ses.mode;
-  ROOM.ses = { ...ROOM.ses, ...p };
-  saveRoom(ROOM);
+  STORE = getStore();
+  const prev = STORE.ses.mode;
+  STORE.ses = { ...STORE.ses, ...p };
+  saveStore(STORE);
   last = "";
   render();
-  if (ROOM.ses.mode === "end" && prev !== "end") {
+  if (STORE.ses.mode === "end" && prev !== "end") {
     burst(["🏆", "💘", "🔥", "🎉", "✨"]);
   }
 }
 
 function adv() {
-  const md = ROOM.ses.mode;
+  const md = STORE.ses.mode;
   if (md === "lobby") setSes({ mode: "vote", i: 0 });
   else if (md === "vote") setSes({ mode: "stats" });
-  else if (md === "stats") { ROOM.ses.i < P.length - 1 ? setSes({ mode: "vote", i: ROOM.ses.i + 1 }) : setSes({ mode: "match" }) }
+  else if (md === "stats") { STORE.ses.i < P.length - 1 ? setSes({ mode: "vote", i: STORE.ses.i + 1 }) : setSes({ mode: "match" }) }
   else if (md === "match") setSes({ mode: "end" });
 }
 
