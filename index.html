@@ -454,7 +454,6 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 <body>
@@ -502,8 +501,34 @@ const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g, "$1").replace(/\s+/g, " ").trim();
 const sid = () => Math.random().toString(36).slice(2, 8);
 
-let room = null, HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, peers = [], last = "", JOIN = "", CONNS = [], PRES = {}, MY = {}, NET = null, dragging = false, peerObj = null, hostId = "", kickNotice = "", connGen = 0;
+let HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, last = "", JOIN = "", PRES = {}, MY_ID = sid(), dragging = false;
 const ok = ["like", "super", "nope"];
+
+const channel = new BroadcastChannel('datinder_local_room');
+
+channel.onmessage = event => {
+  const msg = event.data;
+  if (!msg) return;
+  if (HOST) {
+    if (msg.type === "pres") {
+      PRES[msg.id] = msg.data;
+      broadcastState();
+      render();
+    }
+  } else {
+    if (msg.type === "state") {
+      SES = msg.ses;
+      render();
+    } else if (msg.type === "kick") {
+      disconnectToIntro(msg.reason);
+    }
+  }
+};
+
+function broadcastState() {
+  if (!HOST) return;
+  channel.postMessage({ type: "state", ses: SES, pres: PRES });
+}
 
 function initApp() {
   const thBtn = $("#th");
@@ -551,7 +576,7 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
   }
 }
 
-const pl = () => peers.filter(p => p.kind === "viewer" && !p.presence.role && p.presence.name && p.presence.sid === SES.sid);
+const pl = () => Object.keys(PRES).map(id => ({ peer: id, presence: PRES[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === SES.sid);
 const vt = (p, i) => (p.presence.v || [])[i];
 const tally = () => { const s = pl(), k = SES.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
 const picks = () => pl().filter(x => typeof x.presence.k === "number");
@@ -614,7 +639,7 @@ function render() {
   if (!c) return;
   if (!HOST && ph === "play" && SES.mode === "vote") {
     c.textContent = (SES.i + 1) + " / " + P.length;
-  } else if (HOST && room) {
+  } else if (HOST) {
     const n = pl().length;
     c.innerHTML = `<span class="dot"></span>${n} joueur${n > 1 ? "s" : ""}`;
   } else {
@@ -623,34 +648,23 @@ function render() {
 }
 
 function disconnectToIntro(msg) {
-  connGen++;
-  kickNotice = msg || "🏁 Séance terminée — Déconnecté de la salle";
   ph = "intro";
   sw = {};
   mk = null;
-  MY = {};
   SES = { mode: "lobby", i: 0, sid: "0" };
   dragging = false;
-  const oldNet = NET;
-  const oldPeer = peerObj;
-  NET = null;
-  room = null;
-  peerObj = null;
-  if (oldNet) { try { oldNet.close() } catch (_) { } }
-  if (oldPeer) { try { oldPeer.destroy() } catch (_) { } }
   last = "";
   render();
 }
 
 function phone() {
   if (ph === "intro") {
-    const notice = kickNotice ? `<div class="badge-end">${esc(kickNotice)}</div>` : "";
     const tips = `<div class="phone-tips">
       <div><b style="color:var(--red)">✕ Gauche</b>Nope</div>
       <div><b style="color:var(--blue)">★ Haut</b>Super Like</div>
       <div><b style="color:var(--green)">♥ Droite</b>Like</div>
     </div>`;
-    if (set(`<div class="panel hero">${notice}<div class="big"><i>${SVG.flame}</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button>${tips}</div>`)) {
+    if (set(`<div class="panel hero"><div class="big"><i>${SVG.flame}</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button>${tips}</div>`)) {
       const startBtn = $("#start");
       if (startBtn) startBtn.onclick = join;
       const inp = $("#pz");
@@ -661,10 +675,9 @@ function phone() {
     }
     return;
   }
-  if (!room) { set(hero("📡", "Connexion…", "Un instant, on te connecte à la salle. (Vérifie ta 4G si ça bloque)")); return }
   const md = SES.mode;
   if (md === "lobby") {
-    set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es visible sur le grand écran. La séance va démarrer !"));
+    set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es connecté au grand écran. La séance va démarrer !"));
   }
   else if (md === "vote") {
     if (sw[SES.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
@@ -685,7 +698,7 @@ function phone() {
         document.querySelectorAll(".tile").forEach(b => b.onclick = () => {
           mk = +b.dataset.k;
           burst(["💘", "💖", "✨", P[mk].e]);
-          if (room) room.presence({ k: mk });
+          sendPresence({ k: mk });
           last = ""; render();
         });
       }
@@ -694,6 +707,11 @@ function phone() {
       set(`<div class="panel"><div class="match">${[..."💘❤️💖💕💗"].map((h, i) => `<span class="heart" style="left:${10 + i * 20}%;animation-delay:${i * .5}s;font-size:${22 + i * 4}px">${h}</span>`).join("")}<h1>It’s a match !</h1><div>Toi et ${p.n} vous plaisez mutuellement</div><div class="av"><span class="av-box"><i>🙂</i></span>${avatarHTML(p)}</div><div class="bub">${ne(p.m)}</div></div><div class="who" style="text-align:center">Regarde le tableau pour le verdict final.</div></div>`);
     }
   }
+}
+
+function sendPresence(data) {
+  const payload = { name: PS, sid: SES.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
+  channel.postMessage({ type: "pres", id: MY_ID, data: payload });
 }
 
 function bind() {
@@ -752,28 +770,22 @@ function vote(k) {
     c.style.transform = k === "super" ? "translate3d(0,-125%,0) scale(.9)" : `translate3d(${x * 135}%,20px,0) rotate(${x * 25}deg)`;
     c.style.opacity = 0;
   }
-  if (room) room.presence({ v: P.map((_, j) => sw[j] || null) });
+  sendPresence({});
   setTimeout(() => { last = ""; render() }, 380);
 }
 
 function join() {
   const z = $("#pz");
   PS = ((z && z.value) || "").trim().slice(0, 20) || "Anonyme";
-  kickNotice = "";
   ph = "play";
   sw = {};
   mk = null;
-  MY = { name: PS, sid: SES.sid || "0", v: [], k: null };
-  connectHost();
+  sendPresence({});
   last = ""; render();
 }
 
 function board() {
   const md = SES.mode, p = P[SES.i], players = pl(), n = players.length, t = tally(); let h, after;
-  if (!room) { 
-    set(`<div class="panel hero"><h1>⚠️ Problème Réseau</h1><div class="who">Le pare-feu de ton école bloque les connexions PeerJS (WebSocket).<br><br><b>Solution :</b> Active le partage de connexion 4G/5G sur ton téléphone et connecte ton PC dessus, puis recharge la page !</div></div>`);
-    return; 
-  }
   if (md === "lobby") {
     const centerContent = n === 0
       ? `<div class="radar-zone">
@@ -785,13 +797,13 @@ function board() {
             <b>${SVG.flame}</b>
           </div>
           <p>En attente des participants…</p>
-          <small>Scanne le QR code à gauche pour apparaître dans le salon</small>
+          <small>Scanne le QR code à gauche ou ouvre ce lien sur ton téléphone</small>
         </div>`
       : `<div class="p-grid">${playerCards(players)}</div>`;
 
     h = `<div class="lobby-wrap">
       <div class="box qr-col">
-        <div class="live-pill"><span class="dot"></span>Session en direct</div>
+        <div class="live-pill"><span class="dot"></span>Session locale active</div>
         <div class="qr-wrap"><div class="qr">${qr()}</div></div>
         <div class="link-row">
           <input class="lk" id="lk" value="${esc(JOIN)}" aria-label="Lien de la séance">
@@ -892,31 +904,20 @@ function board() {
   }
 }
 
-function kickAll(reason) {
-  const list = [...CONNS];
-  list.forEach(c => { try { if (c.open) c.send({ t: "kick", reason }) } catch (_) { } });
-  setTimeout(() => {
-    list.forEach(c => { try { c.close() } catch (_) { } });
-    CONNS = [];
-    PRES = {};
-    sync();
-  }, 250);
-}
-
 function resetSession() {
-  kickAll("reset");
+  channel.postMessage({ type: "kick", reason: "🔄 Nouvelle séance !" });
+  PRES = {};
   setSes({ sid: sid(), mode: "lobby", i: 0 });
 }
 
 function setSes(p) {
   const prev = SES.mode;
   SES = { ...SES, ...p };
-  bc();
+  broadcastState();
   last = "";
   render();
   if (SES.mode === "end" && prev !== "end") {
     burst(["🏆", "💘", "🔥", "🎉", "✨"]);
-    kickAll("end");
   }
 }
 
@@ -927,116 +928,11 @@ function adv() {
   else if (md === "stats") { SES.i < P.length - 1 ? setSes({ mode: "vote", i: SES.i + 1 }) : setSes({ mode: "match" }) }
   else if (md === "match") setSes({ mode: "end" });
 }
-function auto() { if (!HOST || SES.mode !== "vote") return; const n = pl().length; if (n > 0 && tally().n >= n) setSes({ mode: "stats" }) }
 
-function bc() { CONNS.forEach(c => { try { if (c.open) c.send({ t: "ses", s: SES }) } catch (e) { } }) }
-function sync() { peers = Object.keys(PRES).map(id => ({ kind: "viewer", peer: id, presence: PRES[id] })); auto(); render() }
-
-function openHost(retry) {
-  let id = "datinder-" + Math.random().toString(36).slice(2, 9);
-  try { id = localStorage.getItem("dtk") || id; localStorage.setItem("dtk", id) } catch (e) { }
-  
-  const pr = new Peer(id, {
-    host: '0.peerjs.com',
-    port: 443,
-    secure: true,
-    debug: 1
-  });
-
-  pr.on("open", () => { JOIN = location.href.split("#")[0] + "#j=" + id; room = true; last = ""; render() });
-  pr.on("connection", c => {
-    if (SES.mode === "end") {
-      c.on("open", () => { try { c.send({ t: "ended" }) } catch (_) { } setTimeout(() => { try { c.close() } catch (_) { } }, 150) });
-      return;
-    }
-    CONNS.push(c);
-    c.on("open", () => c.send({ t: "ses", s: SES }));
-    c.on("data", m => {
-      if (!m || m.t !== "pres" || !m.p || SES.mode === "end") return;
-      const q = m.p;
-      PRES[c.peer] = {
-        name: String(q.name || "").slice(0, 20),
-        sid: String(q.sid || ""),
-        v: P.map((_, j) => ok.includes((q.v || [])[j]) ? q.v[j] : null),
-        k: Number.isInteger(q.k) && q.k >= 0 && q.k < P.length ? q.k : null
-      };
-      sync();
-    });
-    c.on("close", () => { CONNS = CONNS.filter(x => x !== c); delete PRES[c.peer]; sync() });
-  });
-  pr.on("disconnected", () => { if (!pr.destroyed) pr.reconnect() });
-  pr.on("error", e => { 
-    console.error("PeerJS error:", e);
-    if (e.type === "unavailable-id" && !retry) { try { localStorage.removeItem("dtk") } catch (_) { } openHost(true); }
-  });
-}
-
-function connectHost() {
-  if (ph !== "play" || !hostId) return;
-  const gen = ++connGen;
-  if (NET) { try { NET.close() } catch (_) { } NET = null }
-  if (peerObj) { try { peerObj.destroy() } catch (_) { } peerObj = null }
-
-  const pr = new Peer({
-    host: '0.peerjs.com',
-    port: 443,
-    secure: true,
-    debug: 1
-  });
-  peerObj = pr;
-
-  pr.on("open", () => {
-    if (gen !== connGen || ph !== "play") return;
-    const c = pr.connect(hostId);
-    c.on("open", () => {
-      if (gen !== connGen || ph !== "play") { try { c.close() } catch (_) { } return }
-      NET = c;
-      room = { presence: p => { MY = { ...MY, ...p }; try { if (NET && NET.open && MY.name) NET.send({ t: "pres", p: MY }) } catch (e) { } } };
-      room.presence({});
-      last = ""; render();
-    });
-    c.on("data", m => {
-      if (gen !== connGen || !m) return;
-      if (m.t === "ended") {
-        disconnectToIntro("⏳ Séance terminée — Attends la nouvelle séance !");
-        return;
-      }
-      if (m.t === "kick") {
-        disconnectToIntro(m.reason === "reset" ? "🔄 Nouvelle séance ! Entre ton pseudo." : "🏁 Séance terminée — Déconnecté de la salle");
-        return;
-      }
-      if (m.t === "ses" && m.s) {
-        const nw = m.s;
-        if (nw.mode === "end") {
-          disconnectToIntro("🏁 Séance terminée — Déconnecté de la salle");
-          return;
-        }
-        SES = nw;
-        MY.sid = nw.sid;
-        last = "";
-        if (room) room.presence({});
-        render();
-      }
-    });
-    c.on("close", () => {
-      if (gen !== connGen) return;
-      NET = null; room = null;
-      if (ph === "play") {
-        disconnectToIntro("🔌 Déconnecté de la salle");
-      }
-    });
-  });
-
-  pr.on("error", () => {
-    if (gen !== connGen) return;
-    if (ph === "play") {
-      setTimeout(() => { if (gen === connGen && ph === "play" && !NET) connectHost() }, 1500);
-    }
-  });
-}
-
-function startPhone(id) {
-  hostId = id;
+function auto() {
+  if (!HOST || SES.mode !== "vote") return;
+  const n = pl().length;
+  if (n > 0 && tally().n >= n) setSes({ mode: "stats" });
 }
 
 function start() {
@@ -1045,9 +941,8 @@ function start() {
     const appEl = $("#app");
     if (appEl) appEl.classList.add("wide");
     SES = { mode: "lobby", i: 0, sid: sid() };
-    openHost(false);
+    JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
   }
-  else startPhone(location.hash.slice(3));
   render();
 }
 </script>
