@@ -485,7 +485,7 @@ const P = [
   {img:"img/natik.png", e:"🧜‍♀️", n:"Natick", a:"35 m", loc:"📍 À 35 m sous la mer, au large de l’Écosse", g:["#0b5fd6","#12c2e9"], bio:"Petite mais profonde : 12 baies, 864 serveurs. C’est pas la taille qui compte, c’est ce qu’il y a dedans. Toujours bien humide… mais si c’est trop humide, ça marche moins bien. Pour une fois. 😏", t:["🌊 Plongée","🤫 Discrète","💦 Humide"], m:"Viens, on plonge ensemble. 🌊"},
   {img:"img/nordique.png", e:"🧊", n:"La Nordique", a:"Arctique", loc:"📍 À Hamina, Finlande, au bord de la Baltique", g:["#3b4cca","#8fd3f4"], bio:"Froide au premier abord, mais elle adore qu’on lui souffle dessus et qu’on l’arrose d’eau de mer. Ex-usine de papier, elle sait rester propre : jamais de contact direct sans échangeur. Il faut savoir se protéger. 😉", t:["❄️ Free cooling","🌿 Énergie verte","📜 Ex-usine de papier"], m:"J’ai les pieds froids, mais le cœur au chaud. ❄️"},
   {img:"img/forteresse.png", e:"🛡️", n:"La Forteresse", a:"18 ans", loc:"📍 À 30 m sous le granit de Stockholm", g:["#232526","#5b6770"], bio:"Difficile à avoir : badge, sas, portes de 40 cm. Elle demande tes empreintes avant le premier rendez-vous. Mais une fois dedans, elle tient la distance : deux moteurs de sous-marin en secours. 😎", t:["☢️ Ex-abri antiatomique","🔐 Biométrie","🕶️ Style James Bond"], m:"Pas besoin de frapper. Mais prépare ton badge. 🔐"},
-  {img:"img/reveuse.jpg", e:"🚀", n:"La Rêveuse", a:"800 km", loc:"📍 À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅", t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"], m:"Je t’appelle depuis l’orbite. Ne coupe pas. 🛰️"},
+  {img:"img/reveuse.jpg", e:"🚀", n:"La Rêveuse", a:"800 km", loc:"📍 À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅", t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"], m:"I’m calling you from orbit. Don't cut out. 🛰️"},
   {img:"img/genereuse.png", e:"🏅", n:"La Généreuse", a:"Médaillée", loc:"📍 Près de Paris, à deux pas de chez toi", g:["#f12711","#f5af19"], bio:"Médaillée olympique 🏅 j’ai chauffé la piscine des JO 2024. Chaude toute l’année, je ne garde rien pour moi. Je cherche quelqu’un qui sait se jeter à l’eau. 💦", t:["🔥 Toujours chaude","🏊 Chauffe les piscines","🏠 1 000 logements"], m:"Chez moi, on partage tout. Même la chaleur. 🔥"}
 ];
 
@@ -503,31 +503,7 @@ const sid = () => Math.random().toString(36).slice(2, 8);
 
 let HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, last = "", JOIN = "", PRES = {}, MY_ID = sid(), dragging = false;
 
-const channel = new BroadcastChannel('datinder_sync_channel');
-
-function loadStoragePres() {
-  try {
-    const raw = localStorage.getItem('datinder_pres');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      PRES = { ...PRES, ...parsed };
-    }
-    const rawSes = localStorage.getItem('datinder_ses');
-    if (rawSes && !HOST) {
-      const parsedSes = JSON.parse(rawSes);
-      if (parsedSes && parsedSes.mode) SES = parsedSes;
-    }
-  } catch(e) {}
-}
-
-function saveStoragePres() {
-  try {
-    localStorage.setItem('datinder_pres', JSON.stringify(PRES));
-    if (HOST) {
-      localStorage.setItem('datinder_ses', JSON.stringify(SES));
-    }
-  } catch(e) {}
-}
+const channel = new BroadcastChannel('datinder_channel');
 
 channel.onmessage = event => {
   const msg = event.data;
@@ -535,8 +511,6 @@ channel.onmessage = event => {
   if (HOST) {
     if (msg.type === "pres") {
       PRES[msg.id] = msg.data;
-      saveStoragePres();
-      broadcastState();
       render();
     }
   } else {
@@ -544,24 +518,13 @@ channel.onmessage = event => {
       SES = msg.ses;
       render();
     } else if (msg.type === "kick") {
-      disconnectToIntro(msg.reason);
+      disconnectToIntro();
     }
   }
 };
 
-window.addEventListener('storage', e => {
-  if (e.key === 'datinder_pres') {
-    loadStoragePres();
-    render();
-  } else if (e.key === 'datinder_ses' && !HOST) {
-    loadStoragePres();
-    render();
-  }
-});
-
 function broadcastState() {
   if (!HOST) return;
-  saveStoragePres();
   channel.postMessage({ type: "state", ses: SES, pres: PRES });
 }
 
@@ -611,10 +574,7 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
   }
 }
 
-const pl = () => {
-  loadStoragePres();
-  return Object.keys(PRES).map(id => ({ peer: id, presence: PRES[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === SES.sid);
-};
+const pl = () => Object.keys(PRES).map(id => ({ peer: id, presence: PRES[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === SES.sid);
 const vt = (p, i) => (p.presence.v || [])[i];
 const tally = () => { const s = pl(), k = SES.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
 const picks = () => pl().filter(x => typeof x.presence.k === "number");
@@ -685,7 +645,7 @@ function render() {
   }
 }
 
-function disconnectToIntro(msg) {
+function disconnectToIntro() {
   ph = "intro";
   sw = {};
   mk = null;
@@ -750,7 +710,6 @@ function phone() {
 function sendPresence(data) {
   const payload = { name: PS, sid: SES.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
   PRES[MY_ID] = payload;
-  saveStoragePres();
   channel.postMessage({ type: "pres", id: MY_ID, data: payload });
 }
 
@@ -949,7 +908,6 @@ function board() {
 function resetSession() {
   channel.postMessage({ type: "kick", reason: "🔄 Nouvelle séance !" });
   PRES = {};
-  saveStoragePres();
   setSes({ sid: sid(), mode: "lobby", i: 0 });
 }
 
@@ -985,12 +943,8 @@ function start() {
     if (appEl) appEl.classList.add("wide");
     SES = { mode: "lobby", i: 0, sid: sid() };
     JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
-    saveStoragePres();
-  } else {
-    loadStoragePres();
   }
   render();
-  setInterval(() => { if (HOST) loadStoragePres(); }, 1000);
 }
 </script>
 </body>
