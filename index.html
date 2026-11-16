@@ -505,7 +505,7 @@ function initApp() {
     };
   }
 
-  // Écouteur standard
+  // Écouteur standard Storage
   window.addEventListener("storage", e => {
     if (e.key === "dt_state") {
       try {
@@ -515,30 +515,30 @@ function initApp() {
     } else if (e.key === "dt_pres" && HOST) {
       try {
         const d = JSON.parse(e.newValue);
-        if (d) { PRES[d.id] = d.data; render(); }
+        if (d && d.id) { PRES[d.id] = d.data; render(); }
       } catch(err){}
     }
   });
 
-  // Vérification continue pour assurer la fluidité de la liaison entre appareils
+  // Synchronisation continue toutes les 300ms pour garantir le fonctionnement instantané
   setInterval(() => {
     try {
       if (HOST) {
-        const pData = localStorage.getItem("dt_pres");
-        if (pData) {
-          const d = JSON.parse(pData);
-          if (d && d.id && JSON.stringify(PRES[d.id]) !== JSON.stringify(d.data)) {
-            PRES[d.id] = d.data;
+        const raw = localStorage.getItem("dt_pres");
+        if (raw) {
+          const item = JSON.parse(raw);
+          if (item && item.id && JSON.stringify(PRES[item.id]) !== JSON.stringify(item.data)) {
+            PRES[item.id] = item.data;
             render();
           }
         }
       } else {
-        const sData = localStorage.getItem("dt_state");
-        if (sData) {
-          const d = JSON.parse(sData);
-          if (d && d.ses && (d.ses.mode !== SES.mode || d.ses.i !== SES.i || d.ses.sid !== SES.sid)) {
-            SES = d.ses;
-            PRES = d.pres || {};
+        const raw = localStorage.getItem("dt_state");
+        if (raw) {
+          const item = JSON.parse(raw);
+          if (item && item.ses && (item.ses.mode !== SES.mode || item.ses.i !== SES.i || item.ses.sid !== SES.sid)) {
+            SES = item.ses;
+            PRES = item.pres || {};
             render();
           }
         }
@@ -696,7 +696,7 @@ function sendPresence(data) {
   const payload = { name: PS, sid: SES.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
   PRES[MY_ID] = payload;
   try {
-    localStorage.setItem("dt_pres", JSON.stringify({ id: MY_ID, data: payload }));
+    localStorage.setItem("dt_pres", JSON.stringify({ id: MY_ID, data: payload, t: Date.now() }));
   } catch(e){}
 }
 
@@ -901,7 +901,7 @@ function setSes(p) {
   const prev = SES.mode;
   SES = { ...SES, ...p };
   try {
-    localStorage.setItem("dt_state", JSON.stringify({ ses: SES, pres: PRES }));
+    localStorage.setItem("dt_state", JSON.stringify({ ses: SES, pres: PRES, t: Date.now() }));
   } catch(e){}
   last = "";
   render();
@@ -925,6 +925,9 @@ function start() {
     if (appEl) appEl.classList.add("wide");
     SES = { mode: "lobby", i: 0, sid: sid() };
     JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
+    try {
+      localStorage.setItem("dt_state", JSON.stringify({ ses: SES, pres: PRES, t: Date.now() }));
+    } catch(e){}
   } else {
     try {
       const d = JSON.parse(localStorage.getItem("dt_state"));
