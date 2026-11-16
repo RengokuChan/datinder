@@ -206,13 +206,6 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .panel{flex:1;min-height:0;overflow:auto;border-radius:26px;padding:22px;animation:pop .4s both}
 .who{color:var(--mute);font-size:14.5px;margin-bottom:10px;line-height:1.45}
 
-.badge-end{
-  display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;
-  padding:6px 14px;border-radius:99px;font-size:13px;font-weight:700;
-  color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28);
-  animation:pop .35s both
-}
-
 .go{
   border:0;border-radius:99px;padding:15px 24px;font-size:16.5px;font-weight:700;color:#fff;
   background:linear-gradient(90deg,var(--pink),var(--orange),var(--pink));
@@ -485,7 +478,7 @@ const P = [
   {img:"img/natik.png", e:"🧜‍♀️", n:"Natick", a:"35 m", loc:"📍 À 35 m sous la mer, au large de l’Écosse", g:["#0b5fd6","#12c2e9"], bio:"Petite mais profonde : 12 baies, 864 serveurs. C’est pas la taille qui compte, c’est ce qu’il y a dedans. Toujours bien humide… mais si c’est trop humide, ça marche moins bien. Pour une fois. 😏", t:["🌊 Plongée","🤫 Discrète","💦 Humide"], m:"Viens, on plonge ensemble. 🌊"},
   {img:"img/nordique.png", e:"🧊", n:"La Nordique", a:"Arctique", loc:"📍 À Hamina, Finlande, au bord de la Baltique", g:["#3b4cca","#8fd3f4"], bio:"Froide au premier abord, mais elle adore qu’on lui souffle dessus et qu’on l’arrose d’eau de mer. Ex-usine de papier, elle sait rester propre : jamais de contact direct sans échangeur. Il faut savoir se protéger. 😉", t:["❄️ Free cooling","🌿 Énergie verte","📜 Ex-usine de papier"], m:"J’ai les pieds froids, mais le cœur au chaud. ❄️"},
   {img:"img/forteresse.png", e:"🛡️", n:"La Forteresse", a:"18 ans", loc:"📍 À 30 m sous le granit de Stockholm", g:["#232526","#5b6770"], bio:"Difficile à avoir : badge, sas, portes de 40 cm. Elle demande tes empreintes avant le premier rendez-vous. Mais une fois dedans, elle tient la distance : deux moteurs de sous-marin en secours. 😎", t:["☢️ Ex-abri antiatomique","🔐 Biométrie","🕶️ Style James Bond"], m:"Pas besoin de frapper. Mais prépare ton badge. 🔐"},
-  {img:"img/reveuse.jpg", e:"🚀", n:"La Rêveuse", a:"800 km", loc:"📍 À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅", t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"], m:"I’m calling you from orbit. Don't cut out. 🛰️"},
+  {img:"img/reveuse.jpg", e:"🚀", n:"La Rêveuse", a:"800 km", loc:"📍 À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅", t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"], m:"Je t’appelle depuis l’orbite. Ne coupe pas. 🛰️"},
   {img:"img/genereuse.png", e:"🏅", n:"La Généreuse", a:"Médaillée", loc:"📍 Près de Paris, à deux pas de chez toi", g:["#f12711","#f5af19"], bio:"Médaillée olympique 🏅 j’ai chauffé la piscine des JO 2024. Chaude toute l’année, je ne garde rien pour moi. Je cherche quelqu’un qui sait se jeter à l’eau. 💦", t:["🔥 Toujours chaude","🏊 Chauffe les piscines","🏠 1 000 logements"], m:"Chez moi, on partage tout. Même la chaleur. 🔥"}
 ];
 
@@ -501,31 +494,28 @@ const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g, "$1").replace(/\s+/g, " ").trim();
 const sid = () => Math.random().toString(36).slice(2, 8);
 
-let HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, last = "", JOIN = "", PRES = {}, MY_ID = sid(), dragging = false;
+let PS = "", ph = "intro", sw = {}, mk = null, last = "", MY_ID = localStorage.getItem('datinder_my_id') || sid(), dragging = false;
+localStorage.setItem('datinder_my_id', MY_ID);
 
-const channel = new BroadcastChannel('datinder_channel');
+// État centralisé partagé via localStorage pour que n'importe quel appareil (PC ou téléphones) lise et écrive en temps réel
+function getStore() {
+  try {
+    const data = localStorage.getItem('datinder_room_state');
+    if (data) return JSON.parse(data);
+  } catch(e) {}
+  return { hostId: null, ses: { mode: "lobby", i: 0, sid: sid() }, pres: {} };
+}
 
-channel.onmessage = event => {
-  const msg = event.data;
-  if (!msg) return;
-  if (HOST) {
-    if (msg.type === "pres") {
-      PRES[msg.id] = msg.data;
-      render();
-    }
-  } else {
-    if (msg.type === "state") {
-      SES = msg.ses;
-      render();
-    } else if (msg.type === "kick") {
-      disconnectToIntro();
-    }
-  }
-};
+function saveStore(st) {
+  try {
+    localStorage.setItem('datinder_room_state', JSON.stringify(st));
+  } catch(e) {}
+}
 
-function broadcastState() {
-  if (!HOST) return;
-  channel.postMessage({ type: "state", ses: SES, pres: PRES });
+let ST = getStore();
+
+function isHost() {
+  return ST.hostId === MY_ID;
 }
 
 function initApp() {
@@ -538,19 +528,18 @@ function initApp() {
   }
 
   addEventListener("keydown", e => {
-    if (HOST && (e.key === " " || e.key === "Enter") && !["BUTTON", "INPUT"].includes(document.activeElement.tagName)) {
+    if (isHost() && (e.key === " " || e.key === "Enter") && !["BUTTON", "INPUT"].includes(document.activeElement.tagName)) {
       e.preventDefault();
       adv();
-    } else if (!HOST && ph === "intro" && e.key === "Enter") {
+    } else if (!isHost() && ph === "intro" && e.key === "Enter") {
       join();
-    } else if (!HOST && SES.mode === "vote" && ph === "play") {
+    } else if (!isHost() && ST.ses.mode === "vote" && ph === "play") {
       if (e.key === "ArrowLeft") vote("nope");
       else if (e.key === "ArrowRight") vote("like");
       else if (e.key === "ArrowUp") vote("super");
     }
   });
 
-  addEventListener("hashchange", () => location.reload());
   start();
 }
 
@@ -574,9 +563,12 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
   }
 }
 
-const pl = () => Object.keys(PRES).map(id => ({ peer: id, presence: PRES[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === SES.sid);
+const pl = () => {
+  ST = getStore();
+  return Object.keys(ST.pres || {}).map(id => ({ peer: id, presence: ST.pres[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === ST.ses.sid);
+};
 const vt = (p, i) => (p.presence.v || [])[i];
-const tally = () => { const s = pl(), k = SES.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
+const tally = () => { const s = pl(), k = ST.ses.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
 const picks = () => pl().filter(x => typeof x.presence.k === "number");
 const names = a => a.map(x => esc(String(x.presence.name).slice(0, 20))).join(", ") || "—";
 const chipsOf = a => a.map((x, idx) => `<b style="animation-delay:${idx * .05}s">🔥 ${esc(String(x.presence.name).slice(0, 20))}</b>`).join("");
@@ -593,23 +585,23 @@ const playerCards = a => a.map((x, idx) => {
   </div>`;
 }).join("");
 
-function qr() {
+function qr(link) {
   try {
     if (typeof qrcode !== 'undefined') {
-      const q = qrcode(0, "M"); q.addData(JOIN); q.make();
+      const q = qrcode(0, "M"); q.addData(link); q.make();
       const n = q.getModuleCount(); let d = "";
       for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + 4} ${r + 4}h1v1h-1z`;
       return `<svg viewBox="0 0 ${n + 8} ${n + 8}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code pour rejoindre"><path d="${d}" fill="#111"/></svg>`;
     }
   } catch (e) { }
-  return `<div class="who" style="word-break:break-all;font-size:11px;padding:10px;text-align:center;">${esc(JOIN)}</div>`;
+  return `<div class="who" style="word-break:break-all;font-size:11px;padding:10px;text-align:center;">${esc(link)}</div>`;
 }
 
 const avatarHTML = p => p.img
   ? `<span class="av-box"><img src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>${p.e}</i></span>`
   : `<span class="av-box"><i>${p.e}</i></span>`;
 
-function cardHTML(p, live, idx = SES.i) {
+function cardHTML(p, live, idx = ST.ses.i) {
   const segs = P.map((_, j) => `<i class="${j === idx ? "on" : j < idx ? "past" : ""}"></i>`).join("");
   const pic = p.img ? `<img class="pic" src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.parentElement.classList.add('has-pic')" onerror="this.remove()">` : "";
   return `<div class="card" style="background:linear-gradient(155deg,${p.g[0]},${p.g[1]})">
@@ -632,27 +624,24 @@ function set(h) { if (dragging || h === last) return false; last = h; const m = 
 const hero = (icon, h, w, extra = "") => `<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w || ""}</div>${extra}</div>`;
 
 function render() {
-  HOST ? board() : phone();
+  ST = getStore();
+  if (isHost()) {
+    const appEl = $("#app");
+    if (appEl && !appEl.classList.contains("wide")) appEl.classList.add("wide");
+    board();
+  } else {
+    phone();
+  }
   const c = $("#cnt");
   if (!c) return;
-  if (!HOST && ph === "play" && SES.mode === "vote") {
-    c.textContent = (SES.i + 1) + " / " + P.length;
-  } else if (HOST) {
+  if (!isHost() && ph === "play" && ST.ses.mode === "vote") {
+    c.textContent = (ST.ses.i + 1) + " / " + P.length;
+  } else if (isHost()) {
     const n = pl().length;
     c.innerHTML = `<span class="dot"></span>${n} joueur${n > 1 ? "s" : ""}`;
   } else {
     c.textContent = "";
   }
-}
-
-function disconnectToIntro() {
-  ph = "intro";
-  sw = {};
-  mk = null;
-  SES = { mode: "lobby", i: 0, sid: "0" };
-  dragging = false;
-  last = "";
-  render();
 }
 
 function phone() {
@@ -673,13 +662,13 @@ function phone() {
     }
     return;
   }
-  const md = SES.mode;
+  const md = ST.ses.mode;
   if (md === "lobby") {
     set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es connecté au grand écran. La séance va démarrer !"));
   }
   else if (md === "vote") {
-    if (sw[SES.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
-    else if (set(cardHTML(P[SES.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
+    if (sw[ST.ses.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
+    else if (set(cardHTML(P[ST.ses.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
       const bn = $("#bn"), bl = $("#bl"), bs = $("#bs");
       if (bn) bn.onclick = () => vote("nope");
       if (bl) bl.onclick = () => vote("like");
@@ -688,7 +677,7 @@ function phone() {
     }
   }
   else if (md === "stats") {
-    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[SES.i].n + " s’affichent."));
+    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[ST.ses.i].n + " s’affichent."));
   }
   else if (md === "match") {
     if (mk === null) {
@@ -708,9 +697,10 @@ function phone() {
 }
 
 function sendPresence(data) {
-  const payload = { name: PS, sid: SES.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
-  PRES[MY_ID] = payload;
-  channel.postMessage({ type: "pres", id: MY_ID, data: payload });
+  ST = getStore();
+  if (!ST.pres) ST.pres = {};
+  ST.pres[MY_ID] = { name: PS, sid: ST.ses.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
+  saveStore(ST);
 }
 
 function bind() {
@@ -719,7 +709,7 @@ function bind() {
   const baseShadow = "0 28px 64px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.18)";
 
   c.onpointerdown = e => {
-    if (sw[SES.i]) return;
+    if (sw[ST.ses.i]) return;
     x0 = e.clientX; y0 = e.clientY; pid = e.pointerId; dragging = true;
     try { c.setPointerCapture(pid) } catch (_) { }
     c.style.transition = "none"; c.style.animation = "none";
@@ -759,8 +749,8 @@ function bind() {
 }
 
 function vote(k) {
-  if (SES.mode !== "vote" || sw[SES.i]) return;
-  const c = $(".card"), i = SES.i, x = k === "nope" ? -1 : 1;
+  if (ST.ses.mode !== "vote" || sw[ST.ses.i]) return;
+  const c = $(".card"), i = ST.ses.i, x = k === "nope" ? -1 : 1;
   sw[i] = k; dragging = false;
   if (k === "super") burst(["⭐", "💙", "✨"]);
   if (c) {
@@ -784,7 +774,9 @@ function join() {
 }
 
 function board() {
-  const md = SES.mode, p = P[SES.i], players = pl(), n = players.length, t = tally(); let h, after;
+  const md = ST.ses.mode, p = P[ST.ses.i], players = pl(), n = players.length, t = tally(); let h, after;
+  const joinLink = location.href.split("#")[0] + "#join";
+  
   if (md === "lobby") {
     const centerContent = n === 0
       ? `<div class="radar-zone">
@@ -803,9 +795,9 @@ function board() {
     h = `<div class="lobby-wrap">
       <div class="box qr-col">
         <div class="live-pill"><span class="dot"></span>Session locale active</div>
-        <div class="qr-wrap"><div class="qr">${qr()}</div></div>
+        <div class="qr-wrap"><div class="qr">${qr(joinLink)}</div></div>
         <div class="link-row">
-          <input class="lk" id="lk" value="${esc(JOIN)}" aria-label="Lien de la séance">
+          <input class="lk" id="lk" value="${esc(joinLink)}" aria-label="Lien de la séance">
           <button class="cp" id="cp" title="Copier le lien">📋 Copier</button>
         </div>
         <div class="steps">
@@ -844,26 +836,26 @@ function board() {
 
         <div class="ctl">
           <button class="go" id="a1">Démarrer le swipe</button>
-          <button class="go g2" id="a2">Nouvelle séance</button>
+          <button class="go g2" id="a2">Devenir Hôte / Réinitialiser</button>
         </div>
       </div>
     </div>`;
     after = () => {
       const lk = $("#lk"), cp = $("#cp");
-      if (lk) lk.onchange = e => { JOIN = e.target.value.trim(); last = ""; render() };
+      if (lk) lk.onchange = e => { last = ""; render() };
       if (cp) cp.onclick = async () => {
-        try { await navigator.clipboard.writeText(JOIN); cp.textContent = "✅ Copié"; setTimeout(() => cp.textContent = "📋 Copier", 1600) } catch (_) { }
+        try { await navigator.clipboard.writeText(joinLink); cp.textContent = "✅ Copié"; setTimeout(() => cp.textContent = "📋 Copier", 1600) } catch (_) { }
       };
     };
   }
   else if (md === "vote") {
     h = `<div class="board">${cardHTML(p, false)}<div class="side">
-      <h2>Profil ${SES.i + 1} / ${P.length}</h2>
+      <h2>Profil ${ST.ses.i + 1} / ${P.length}</h2>
       <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
       <div class="bar"><i style="width:${n ? 100 * t.n / n : 0}%;background:var(--grad)"></i></div>
       <div class="who" style="font-weight:700;margin-top:8px">Joueurs connectés (${n}) :</div>
       <div class="p-grid" style="margin-bottom:10px">${playerCards(players)}</div>
-      <div class="chips">${chipsOf(players.filter(x => vt(x, SES.i)))}</div>
+      <div class="chips">${chipsOf(players.filter(x => vt(x, ST.ses.i)))}</div>
       <div class="ctl"><button class="go" id="a1">Voir les matchs maintenant</button></div>
     </div></div>`;
   }
@@ -875,7 +867,7 @@ function board() {
       ${rw("♥ Likes", t.like, "var(--green)")}
       ${rw("★ Super likes", t.sup, "var(--blue)")}
       ${rw("✕ Passées", t.nope, "var(--red)")}
-      <div class="ctl"><button class="go" id="a1">${SES.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
+      <div class="ctl"><button class="go" id="a1">${ST.ses.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
     </div></div>`;
   }
   else {
@@ -906,45 +898,57 @@ function board() {
 }
 
 function resetSession() {
-  channel.postMessage({ type: "kick", reason: "🔄 Nouvelle séance !" });
-  PRES = {};
-  setSes({ sid: sid(), mode: "lobby", i: 0 });
+  ST = getStore();
+  ST.ses = { sid: sid(), mode: "lobby", i: 0 };
+  ST.pres = {};
+  saveStore(ST);
+  last = "";
+  render();
 }
 
 function setSes(p) {
-  const prev = SES.mode;
-  SES = { ...SES, ...p };
-  broadcastState();
+  ST = getStore();
+  const prev = ST.ses.mode;
+  ST.ses = { ...ST.ses, ...p };
+  saveStore(ST);
   last = "";
   render();
-  if (SES.mode === "end" && prev !== "end") {
+  if (ST.ses.mode === "end" && prev !== "end") {
     burst(["🏆", "💘", "🔥", "🎉", "✨"]);
   }
 }
 
 function adv() {
-  const md = SES.mode;
+  const md = ST.ses.mode;
   if (md === "lobby") setSes({ mode: "vote", i: 0 });
   else if (md === "vote") setSes({ mode: "stats" });
-  else if (md === "stats") { SES.i < P.length - 1 ? setSes({ mode: "vote", i: SES.i + 1 }) : setSes({ mode: "match" }) }
+  else if (md === "stats") { ST.ses.i < P.length - 1 ? setSes({ mode: "vote", i: ST.ses.i + 1 }) : setSes({ mode: "match" }) }
   else if (md === "match") setSes({ mode: "end" });
 }
 
-function auto() {
-  if (!HOST || SES.mode !== "vote") return;
-  const n = pl().length;
-  if (n > 0 && tally().n >= n) setSes({ mode: "stats" });
-}
-
 function start() {
-  HOST = !location.hash.startsWith("#j=");
-  if (HOST) {
-    const appEl = $("#app");
-    if (appEl) appEl.classList.add("wide");
-    SES = { mode: "lobby", i: 0, sid: sid() };
-    JOIN = location.href.split("#")[0] + "#j=" + MY_ID;
+  ST = getStore();
+  
+  // Si aucun hôte n'est défini ou si l'URL contient #join, on devient client. Sinon le premier devient l'hôte.
+  if (!ST.hostId || location.hash.includes('#join')) {
+    if (!location.hash.includes('#join') && !ST.hostId) {
+      ST.hostId = MY_ID;
+      ST.ses = { mode: "lobby", i: 0, sid: sid() };
+      saveStore(ST);
+    }
   }
+
   render();
+
+  // Boucle de synchro automatique permanente (toutes les 500ms) pour rafraîchir l'écran instantanément
+  setInterval(() => {
+    const fresh = getStore();
+    // Si la session ou les présences ont changé, on re-render
+    if (JSON.stringify(fresh) !== JSON.stringify(ST)) {
+      ST = fresh;
+      render();
+    }
+  }, 500);
 }
 </script>
 </body>
