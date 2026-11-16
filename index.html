@@ -503,7 +503,6 @@ const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,""
 const sid = () => Math.random().toString(36).slice(2, 8);
 
 let room = null, HOST = false, PS = "", SES = { mode: "lobby", i: 0, sid: "0" }, ph = "intro", sw = {}, mk = null, peers = [], last = "", JOIN = "", CONNS = [], PRES = {}, MY = {}, NET = null, dragging = false, peerObj = null, hostId = "", kickNotice = "", connGen = 0;
-let hostPeerId = "";
 const ok = ["like", "super", "nope"];
 
 function initApp() {
@@ -662,7 +661,7 @@ function phone() {
     }
     return;
   }
-  if (!room) { set(hero("📡", "Connexion en cours…", "Connexion au serveur sécurisé peerjs.org...")); return }
+  if (!room) { set(hero("📡", "Connexion…", "Un instant, on te connecte à la salle. (Vérifie ta 4G si ça bloque)")); return }
   const md = SES.mode;
   if (md === "lobby") {
     set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es visible sur le grand écran. La séance va démarrer !"));
@@ -772,7 +771,7 @@ function join() {
 function board() {
   const md = SES.mode, p = P[SES.i], players = pl(), n = players.length, t = tally(); let h, after;
   if (!room) { 
-    set(`<div class="panel hero"><h1>⏳ Connexion au serveur...</h1><div class="who">Création de la salle automatique (peerjs.org)...</div></div>`);
+    set(`<div class="panel hero"><h1>⚠️ Problème Réseau</h1><div class="who">Le pare-feu de ton école bloque les connexions PeerJS (WebSocket).<br><br><b>Solution :</b> Active le partage de connexion 4G/5G sur ton téléphone et connecte ton PC dessus, puis recharge la page !</div></div>`);
     return; 
   }
   if (md === "lobby") {
@@ -933,24 +932,18 @@ function auto() { if (!HOST || SES.mode !== "vote") return; const n = pl().lengt
 function bc() { CONNS.forEach(c => { try { if (c.open) c.send({ t: "ses", s: SES }) } catch (e) { } }) }
 function sync() { peers = Object.keys(PRES).map(id => ({ kind: "viewer", peer: id, presence: PRES[id] })); auto(); render() }
 
-function openHost() {
-  // Laisse PeerJS générer un ID aléatoire unique garanti sans collision
-  const pr = new Peer({
-    host: 'peerjs.org',
+function openHost(retry) {
+  let id = "datinder-" + Math.random().toString(36).slice(2, 9);
+  try { id = localStorage.getItem("dtk") || id; localStorage.setItem("dtk", id) } catch (e) { }
+  
+  const pr = new Peer(id, {
+    host: '0.peerjs.com',
     port: 443,
     secure: true,
     debug: 1
   });
-  peerObj = pr;
 
-  pr.on("open", id => {
-    hostPeerId = id;
-    JOIN = location.href.split("#")[0] + "#j=" + id;
-    room = true;
-    last = "";
-    render();
-  });
-
+  pr.on("open", () => { JOIN = location.href.split("#")[0] + "#j=" + id; room = true; last = ""; render() });
   pr.on("connection", c => {
     if (SES.mode === "end") {
       c.on("open", () => { try { c.send({ t: "ended" }) } catch (_) { } setTimeout(() => { try { c.close() } catch (_) { } }, 150) });
@@ -971,9 +964,11 @@ function openHost() {
     });
     c.on("close", () => { CONNS = CONNS.filter(x => x !== c); delete PRES[c.peer]; sync() });
   });
-
   pr.on("disconnected", () => { if (!pr.destroyed) pr.reconnect() });
-  pr.on("error", e => { console.error("PeerJS Host error:", e); });
+  pr.on("error", e => { 
+    console.error("PeerJS error:", e);
+    if (e.type === "unavailable-id" && !retry) { try { localStorage.removeItem("dtk") } catch (_) { } openHost(true); }
+  });
 }
 
 function connectHost() {
@@ -983,7 +978,7 @@ function connectHost() {
   if (peerObj) { try { peerObj.destroy() } catch (_) { } peerObj = null }
 
   const pr = new Peer({
-    host: 'peerjs.org',
+    host: '0.peerjs.com',
     port: 443,
     secure: true,
     debug: 1
@@ -1050,7 +1045,7 @@ function start() {
     const appEl = $("#app");
     if (appEl) appEl.classList.add("wide");
     SES = { mode: "lobby", i: 0, sid: sid() };
-    openHost();
+    openHost(false);
   }
   else startPhone(location.hash.slice(3));
   render();
