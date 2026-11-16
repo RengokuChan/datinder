@@ -46,8 +46,7 @@ body::before{width:60vmax;height:60vmax;background:var(--pink);top:-25vmax;left:
 body::after{width:60vmax;height:60vmax;background:var(--orange);bottom:-28vmax;right:-18vmax;animation-delay:-8s}
 @keyframes drift{to{transform:translate(6vmax,5vmax) scale(1.12)}}
 
-#app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:10px 14px 14px;position:relative;z-index:1}
-#app.wide{max-width:1340px}
+#app{height:100%;max-width:850px;margin:0 auto;display:flex;flex-direction:column;padding:12px 16px 16px;position:relative;z-index:1}
 
 header{display:flex;align-items:center;justify-content:center;position:relative;padding:2px 0 12px;min-height:46px;flex-shrink:0}
 .logo{
@@ -66,8 +65,6 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
   border:1px solid var(--line);padding:6px 13px;border-radius:99px;
   display:inline-flex;align-items:center;gap:7px
 }
-.cnt:empty{display:none}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;flex-shrink:0}
 .tbtn{
   width:36px;height:36px;border-radius:50%;border:1px solid var(--line);
   background:var(--panel);backdrop-filter:blur(14px);
@@ -178,7 +175,7 @@ header{display:flex;align-items:center;justify-content:center;position:relative;
 .st.nope{right:18px;color:#ff5c72;border-color:#ff5c72;transform:rotate(14deg)}
 .st.sup{left:50%;top:40%;transform:translateX(-50%) rotate(-6deg);color:var(--blue);border-color:var(--blue);font-size:28px;white-space:nowrap}
 
-.btns{display:flex;justify-content:center;align-items:center;gap:20px;padding:2px 0}
+.btns{display:flex;justify-content:center;align-items:center;gap:20px;padding:4px 0}
 .btns button{
   width:clamp(60px,9.5vh,74px);height:clamp(60px,9.5vh,74px);border-radius:50%;border:2px solid;
   background:var(--panel-solid);box-shadow:0 12px 28px rgba(0,0,0,.24);
@@ -216,11 +213,6 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 @keyframes sheen{to{background-position:200% 0}}
 .go:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 14px 32px rgba(253,38,122,.46)}
 .go:active{transform:scale(.97)}
-.go.g2{
-  background:var(--chip);color:var(--ink);border:1px solid var(--line);
-  box-shadow:none;animation:none
-}
-.go.g2:hover{background:var(--panel-solid)}
 
 .hero{text-align:center;display:flex;flex-direction:column;justify-content:center}
 .hero .big{display:grid;place-items:center;margin:0 auto 16px;font-size:0}
@@ -232,24 +224,6 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 }
 @keyframes ring{0%{box-shadow:0 0 0 0 rgba(253,38,122,.48)}70%,100%{box-shadow:0 0 0 34px rgba(253,38,122,0)}}
 .hero h1{margin:6px 0;font-size:clamp(25px,4.6vh,36px);font-weight:800;line-height:1.14;letter-spacing:-.6px}
-
-.phone-tips{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;
-  padding-top:16px;border-top:1px solid var(--line)
-}
-.phone-tips div{
-  background:var(--chip);border-radius:14px;padding:9px 6px;font-size:11.5px;font-weight:700;color:var(--mute)
-}
-.phone-tips b{display:block;font-size:15px;margin-bottom:2px}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}
-.tile{
-  border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:13px 8px;color:#fff;
-  font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.22);
-  transition:transform .18s cubic-bezier(.2,1.5,.4,1);animation:pop .45s both
-}
-.tile:hover{transform:scale(1.05) rotate(-1deg)}
-.tile:active{transform:scale(.95)}
 
 .match{
   position:relative;overflow:hidden;text-align:center;color:#fff;border-radius:22px;
@@ -267,187 +241,12 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
   font-size:clamp(14px,2.2vh,16.5px);font-weight:600;max-width:92%;box-shadow:0 6px 18px rgba(0,0,0,.14)
 }
 
-input{
-  width:100%;padding:14px 16px;border-radius:99px;border:1.5px solid var(--line);
-  background:var(--chip);color:var(--ink);font-size:17px;font-weight:700;margin:8px 0;text-align:center;
-  transition:border-color .2s,box-shadow .2s,background .2s
-}
-input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);box-shadow:0 0 0 4px rgba(253,38,122,.16)}
-
-.lobby-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(310px,375px) 1fr;gap:18px}
-.qr-col{
-  border-radius:26px;padding:22px;display:flex;flex-direction:column;align-items:center;
-  justify-content:space-between;gap:14px;animation:pop .4s both
-}
-.live-pill{
-  display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:99px;
-  font-size:12px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
-  color:var(--pink);background:rgba(253,38,122,.12);border:1px solid rgba(253,38,122,.28)
-}
-.qr-wrap{
-  padding:7px;border-radius:24px;background:var(--grad);
-  box-shadow:0 18px 40px rgba(253,38,122,.3);width:min(100%,275px)
-}
-.qr{width:100%;background:#fff;border-radius:18px;padding:13px;display:block}
-.qr svg{display:block;width:100%;height:auto}
-.link-row{display:flex;gap:6px;width:100%;align-items:center}
-.lk{font-size:12px;padding:10px 12px;margin:0;flex:1;min-width:0;font-weight:600}
-.cp{
-  border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;
-  padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
-  transition:transform .15s,background .15s
-}
-.cp:hover{transform:scale(1.06);background:var(--panel-solid)}
-.steps{
-  width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-  padding-top:10px;border-top:1px solid var(--line);text-align:center
-}
-.steps div{
-  background:var(--chip);border-radius:14px;padding:9px 4px;font-size:12px;font-weight:700;color:var(--mute)
-}
-.steps span{display:block;font-size:18px;margin-bottom:3px}
-
-.lobby-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px}
-.players-box{
-  flex:1;min-height:0;border-radius:26px;padding:22px 24px;display:flex;flex-direction:column;gap:14px;
-  overflow:auto;animation:pop .44s both
-}
-.l-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.l-head h2{
-  margin:0;font-size:clamp(22px,3.4vh,32px);font-weight:800;letter-spacing:-.5px;
-  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
-}
-.l-sub{color:var(--mute);font-size:14px;margin:3px 0 0;font-weight:500}
-.count-badge{
-  padding:9px 18px;border-radius:99px;font-size:14.5px;font-weight:800;color:#fff;
-  background:var(--grad);box-shadow:0 8px 22px rgba(253,38,122,.3);
-  display:inline-flex;align-items:center;gap:8px
-}
-
-.radar-zone{
-  flex:1;min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;position:relative;padding:12px;overflow:hidden
-}
-.radar{
-  position:relative;width:136px;height:136px;display:grid;place-items:center;margin-bottom:16px
-}
-.radar span{
-  position:absolute;inset:0;border-radius:50%;border:2px solid rgba(253,38,122,.4);
-  background:radial-gradient(circle,rgba(253,38,122,.12),transparent 70%);
-  animation:sonar 3s cubic-bezier(.15,.7,.35,1) infinite
-}
-.radar span:nth-child(2){animation-delay:1s}
-.radar span:nth-child(3){animation-delay:2s}
-@keyframes sonar{
-  0%{transform:scale(.6);opacity:.95}
-  100%{transform:scale(2.35);opacity:0}
-}
-.radar b{
-  position:relative;z-index:2;width:74px;height:74px;border-radius:50%;background:var(--grad);
-  display:grid;place-items:center;color:#fff;
-  box-shadow:0 12px 28px rgba(253,38,122,.45)
-}
-.radar b svg{width:34px;height:34px}
-.orbit-tag{
-  position:absolute;z-index:3;width:34px;height:34px;border-radius:50%;
-  background:var(--panel-solid);border:1px solid var(--line);
-  box-shadow:0 6px 16px rgba(0,0,0,.22);display:grid;place-items:center;
-  font-size:15px;font-weight:800;animation:float 3.5s ease-in-out infinite
-}
-.orbit-tag.t1{top:6px;right:8px;color:var(--green)}
-.orbit-tag.t2{bottom:10px;left:4px;color:var(--blue);animation-delay:-1.2s}
-.orbit-tag.t3{top:14px;left:10px;color:var(--red);animation-delay:-2.4s}
-.radar-zone p{margin:0;font-size:16.5px;font-weight:800;color:var(--ink)}
-.radar-zone small{color:var(--mute);font-size:13.5px;margin-top:4px}
-
-.p-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px;
-  align-content:start;padding:2px 0
-}
-.p-card{
-  display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:18px;
-  background:var(--chip);border:1px solid var(--line);
-  animation:pop .38s cubic-bezier(.2,1.5,.4,1) both
-}
-.p-av{
-  width:38px;height:38px;border-radius:50%;color:#fff;
-  font-weight:800;font-size:15px;display:grid;place-items:center;flex-shrink:0;
-  box-shadow:0 4px 12px rgba(0,0,0,.22);position:relative
-}
-.p-av::after{
-  content:"";position:absolute;right:0;bottom:0;width:10px;height:10px;border-radius:50%;
-  background:var(--green);border:2px solid var(--panel-solid)
-}
-.p-meta{min-width:0;flex:1}
-.p-nm{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.p-st{font-size:11.5px;color:var(--mute);font-weight:600}
-
-.guide-bar{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:12px
-}
-.g-item{
-  border-radius:20px;padding:13px 15px;display:flex;align-items:center;gap:12px;
-  animation:pop .48s both
-}
-.g-ic{
-  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
-  font-size:18px;font-weight:900;flex-shrink:0
-}
-.g-ic.r{background:rgba(255,68,88,.14);color:var(--red);border:1.5px solid rgba(255,68,88,.3)}
-.g-ic.b{background:rgba(42,182,255,.14);color:var(--blue);border:1.5px solid rgba(42,182,255,.3)}
-.g-ic.g{background:rgba(33,208,122,.14);color:var(--green);border:1.5px solid rgba(33,208,122,.3)}
-.g-txt b{display:block;font-size:13.5px;font-weight:800;color:var(--ink)}
-.g-txt span{display:block;font-size:12px;color:var(--mute);font-weight:500;margin-top:1px}
-
-.board{flex:1;min-height:0;display:flex;gap:20px}
-.board>.card{flex:0 0 min(36vw,410px);cursor:default}
-.side{flex:1;min-width:0;overflow:auto;border-radius:26px;padding:24px;display:flex;flex-direction:column;gap:11px;animation:pop .4s both}
-.side h2{
-  margin:0;font-size:clamp(22px,4vh,36px);font-weight:800;letter-spacing:-.5px;
-  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
-}
-.chips{display:flex;flex-wrap:wrap;gap:9px;align-content:flex-start}
-.chips b{
-  background:linear-gradient(var(--panel-solid),var(--panel-solid)) padding-box,var(--grad) border-box;
-  border:2px solid transparent;border-radius:99px;padding:7px 15px;
-  font-size:clamp(14px,2.2vh,18px);font-weight:700;animation:pop .4s both;
-  display:inline-flex;align-items:center;gap:6px
-}
-.bar{height:16px;border-radius:99px;background:var(--chip);overflow:hidden}
-.bar i{
-  display:block;height:100%;border-radius:99px;transform-origin:left;
-  animation:grow .8s cubic-bezier(.2,1,.3,1) both;box-shadow:0 0 14px rgba(253,38,122,.35)
-}
-@keyframes grow{from{transform:scaleX(0)}}
-.row{display:flex;justify-content:space-between;font-size:clamp(16px,2.8vh,24px);font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums}
-.nm{font-size:clamp(13px,2.1vh,17px);color:var(--mute);font-weight:500}
-.ctl{display:flex;gap:12px;margin-top:auto;padding-top:4px}
-.ctl .go{margin:0}
-.ctl .go.g2{flex:0 0 auto;width:auto;padding:15px 24px}
-
-.winner-box{
-  display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:20px;
-  color:#fff;border:2px solid rgba(255,215,100,.65);
-  box-shadow:0 14px 32px rgba(0,0,0,.28);animation:pop .5s both
-}
-.winner-box h3{margin:0;font-size:22px;font-weight:800}
-.winner-box p{margin:4px 0 0;font-size:14px;opacity:.92}
-
 .fx{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
 .fx i{position:absolute;top:-24px;font-style:normal;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(106vh) rotate(540deg);opacity:0}}
 
-@media (max-width:980px){
-  .lobby-wrap{grid-template-columns:1fr;overflow:auto}
-  .guide-bar{grid-template-columns:1fr}
-}
-@media (max-width:800px){
-  .board{flex-direction:column}
-  .board>.card{flex:0 0 40vh}
-}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 <body>
 <div class="fx" id="fx"></div>
@@ -466,7 +265,7 @@ input:focus{outline:none;background:var(--panel-solid);border-color:var(--pink);
       datinder
     </div>
     <div class="top-r">
-      <div class="cnt" id="cnt"></div>
+      <div class="cnt" id="cnt">1 / 5</div>
       <button class="tbtn" id="th" title="Changer le thème" aria-label="Changer le thème">🌓</button>
     </div>
   </header>
@@ -492,38 +291,8 @@ const SVG = {
 const $ = s => document.querySelector(s);
 const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g, "$1").replace(/\s+/g, " ").trim();
-const sid = () => Math.random().toString(36).slice(2, 8);
 
-let MY_ID = localStorage.getItem("dt_id") || sid();
-localStorage.setItem("dt_id", MY_ID);
-
-let PS = "", ph = "intro", sw = {}, mk = null, last = "", dragging = false;
-
-function getState() {
-  try {
-    const d = localStorage.getItem("dt_state_v2");
-    if (d) return JSON.parse(d);
-  } catch(e){}
-  return { host: MY_ID, ses: { mode: "lobby", i: 0, sid: sid() }, pres: {} };
-}
-
-function saveState(st) {
-  try {
-    localStorage.setItem("dt_state_v2", JSON.stringify(st));
-  } catch(e){}
-}
-
-let STATE = getState();
-
-// Si l'URL contient #join ou si l'ID d'hôte enregistré n'est pas le nôtre et qu'on vient d'arriver
-function isHost() {
-  if (location.hash.includes("join")) return false;
-  if (!STATE.host) {
-    STATE.host = MY_ID;
-    saveState(STATE);
-  }
-  return STATE.host === MY_ID;
-}
+let idx = 0, phase = "intro", dragging = false;
 
 function initApp() {
   const thBtn = $("#th");
@@ -533,26 +302,6 @@ function initApp() {
       document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
     };
   }
-
-  // Écoute des modifications inter-onglets et inter-appareils
-  window.addEventListener("storage", e => {
-    if (e.key === "dt_state_v2" && e.newValue) {
-      try {
-        STATE = JSON.parse(e.newValue);
-        render();
-      } catch(err){}
-    }
-  });
-
-  // Rafraîchissement automatique permanent toutes les 200ms
-  setInterval(() => {
-    const fresh = getState();
-    if (JSON.stringify(fresh) !== JSON.stringify(STATE)) {
-      STATE = fresh;
-      render();
-    }
-  }, 200);
-
   render();
 }
 
@@ -576,46 +325,12 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
   }
 }
 
-const pl = () => {
-  STATE = getState();
-  return Object.keys(STATE.pres || {}).map(id => ({ peer: id, presence: STATE.pres[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === STATE.ses.sid);
-};
-const vt = (p, i) => (p.presence.v || [])[i];
-const tally = () => { const s = pl(), k = STATE.ses.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
-const picks = () => pl().filter(x => typeof x.presence.k === "number");
-const names = a => a.map(x => esc(String(x.presence.name).slice(0, 20))).join(", ") || "—";
-const chipsOf = a => a.map((x, idx) => `<b style="animation-delay:${idx * .05}s">🔥 ${esc(String(x.presence.name).slice(0, 20))}</b>`).join("");
-
-const playerCards = a => a.map((x, idx) => {
-  const nm = String(x.presence.name).slice(0, 20);
-  const ini = esc((nm[0] || "?").toUpperCase());
-  return `<div class="p-card" style="animation-delay:${idx * .04}s">
-    <div class="p-av" style="background:linear-gradient(135deg,#fd267a,#ff6036)">${ini}</div>
-    <div class="p-meta">
-      <div class="p-nm">${esc(nm)}</div>
-      <div class="p-st">Prêt à swiper</div>
-    </div>
-  </div>`;
-}).join("");
-
-function qr(link) {
-  try {
-    if (typeof qrcode !== 'undefined') {
-      const q = qrcode(0, "M"); q.addData(link); q.make();
-      const n = q.getModuleCount(); let d = "";
-      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + 4} ${r + 4}h1v1h-1z`;
-      return `<svg viewBox="0 0 ${n + 8} ${n + 8}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code pour rejoindre"><path d="${d}" fill="#111"/></svg>`;
-    }
-  } catch (e) { }
-  return `<div class="who" style="word-break:break-all;font-size:11px;padding:10px;text-align:center;">${esc(link)}</div>`;
-}
-
 const avatarHTML = p => p.img
   ? `<span class="av-box"><img src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>${p.e}</i></span>`
   : `<span class="av-box"><i>${p.e}</i></span>`;
 
-function cardHTML(p, live, idx = STATE.ses.i) {
-  const segs = P.map((_, j) => `<i class="${j === idx ? "on" : j < idx ? "past" : ""}"></i>`).join("");
+function cardHTML(p, live, currentIdx = idx) {
+  const segs = P.map((_, j) => `<i class="${j === currentIdx ? "on" : j < currentIdx ? "past" : ""}"></i>`).join("");
   const pic = p.img ? `<img class="pic" src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.parentElement.classList.add('has-pic')" onerror="this.remove()">` : "";
   return `<div class="card" style="background:linear-gradient(155deg,${p.g[0]},${p.g[1]})">
     <div class="orb a"></div><div class="orb b"></div>
@@ -633,98 +348,75 @@ function cardHTML(p, live, idx = STATE.ses.i) {
   </div>`;
 }
 
-function set(h) { if (dragging || h === last) return false; last = h; const m = $("#main"); if (m) m.innerHTML = h; return true }
+function set(h) { const m = $("#main"); if (m) m.innerHTML = h; }
 const hero = (icon, h, w, extra = "") => `<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w || ""}</div>${extra}</div>`;
 
 function render() {
-  STATE = getState();
-  if (isHost()) {
-    const appEl = $("#app");
-    if (appEl && !appEl.classList.contains("wide")) appEl.classList.add("wide");
-    board();
-  } else {
-    const appEl = $("#app");
-    if (appEl && appEl.classList.contains("wide")) appEl.classList.remove("wide");
-    phone();
-  }
   const c = $("#cnt");
-  if (!c) return;
-  if (!isHost() && ph === "play" && STATE.ses.mode === "vote") {
-    c.textContent = (STATE.ses.i + 1) + " / " + P.length;
-  } else if (isHost()) {
-    const n = pl().length;
-    c.innerHTML = `<span class="dot"></span>${n} joueur${n > 1 ? "s" : ""}`;
-  } else {
-    c.textContent = "";
+  if (phase === "intro") {
+    if (c) c.textContent = "Intro";
+    set(`<div class="panel hero">
+      <div class="big"><i>${SVG.flame}</i></div>
+      <h1>DATinder – Le Swipe en Amphi / Tableau</h1>
+      <div class="who">Tout le monde vote à main levée, assis ou debout !<br><b>Gauche</b> = Nope · <b>Haut</b> = Super Like · <b>Droite</b> = Like</div>
+      <button class="go" id="start-btn">C'est parti !</button>
+    </div>`);
+    const btn = $("#start-btn");
+    if (btn) btn.onclick = () => { phase = "swipe"; idx = 0; render(); };
+  } 
+  else if (phase === "swipe") {
+    if (c) c.textContent = (idx + 1) + " / " + P.length;
+    set(cardHTML(P[idx], true) + `<div class="btns">
+      <button aria-label="Passer" id="bn" title="Nope">${SVG.nope}</button>
+      <button class="sm" aria-label="Super like" id="bs" title="Super Like">${SVG.star}</button>
+      <button aria-label="Liker" id="bl" title="Like">${SVG.like}</button>
+    </div>`);
+    
+    const bn = $("#bn"), bl = $("#bl"), bs = $("#bs");
+    if (bn) bn.onclick = () => nextCard("nope");
+    if (bl) bl.onclick = () => nextCard("like");
+    if (bs) bs.onclick = () => nextCard("super");
+    bindSwipe();
+  }
+  else if (phase === "end") {
+    if (c) c.textContent = "Fin";
+    set(`<div class="panel hero">
+      <div class="big"><i>🏆</i></div>
+      <h1>Session terminée !</h1>
+      <div class="who">Vous avez exploré tous les data centers de la sélection. Prêts pour un débrief ?</div>
+      <button class="go" id="restart-btn">Recommencer</button>
+    </div>`);
+    const btn = $("#restart-btn");
+    if (btn) btn.onclick = () => { phase = "intro"; idx = 0; render(); };
   }
 }
 
-function phone() {
-  if (ph === "intro") {
-    const tips = `<div class="phone-tips">
-      <div><b style="color:var(--red)">✕ Gauche</b>Nope</div>
-      <div><b style="color:var(--blue)">★ Haut</b>Super Like</div>
-      <div><b style="color:var(--green)">♥ Droite</b>Like</div>
-    </div>`;
-    if (set(`<div class="panel hero"><div class="big"><i>${SVG.flame}</i></div><h1>Trouve la data center de ta vie</h1><div class="who">Choisis un pseudo pour rejoindre la session.</div><input id="pz" maxlength="20" placeholder="Ton pseudo" value="${esc(PS)}" autocomplete="off" aria-label="Ton pseudo"><button class="go" id="start">Rejoindre le swipe</button>${tips}</div>`)) {
-      const startBtn = $("#start");
-      if (startBtn) startBtn.onclick = join;
-      const inp = $("#pz");
-      if (inp) {
-        inp.focus();
-        inp.setSelectionRange(inp.value.length, inp.value.length);
-      }
+function nextCard(k) {
+  if (k === "super") burst(["⭐", "💙", "✨"]);
+  const c = $(".card");
+  const x = k === "nope" ? -1 : 1;
+  if (c) {
+    c.style.animation = "none";
+    c.style.transition = "transform .42s cubic-bezier(.22,1,.36,1),opacity .38s";
+    c.style.transform = k === "super" ? "translate3d(0,-125%,0) scale(.9)" : `translate3d(${x * 135}%,20px,0) rotate(${x * 25}deg)`;
+    c.style.opacity = 0;
+  }
+  setTimeout(() => {
+    idx++;
+    if (idx >= P.length) {
+      phase = "end";
+      burst(["🏆", "💘", "🔥", "🎉", "✨"]);
     }
-    return;
-  }
-  const md = STATE.ses.mode;
-  if (md === "lobby") {
-    set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es connecté au grand écran. La séance va démarrer !"));
-  }
-  else if (md === "vote") {
-    if (sw[STATE.ses.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
-    else if (set(cardHTML(P[STATE.ses.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
-      const bn = $("#bn"), bl = $("#bl"), bs = $("#bs");
-      if (bn) bn.onclick = () => vote("nope");
-      if (bl) bl.onclick = () => vote("like");
-      if (bs) bs.onclick = () => vote("super");
-      bind();
-    }
-  }
-  else if (md === "stats") {
-    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[STATE.ses.i].n + " s’affichent."));
-  }
-  else if (md === "match") {
-    if (mk === null) {
-      if (set(`<div class="panel hero"><h1>Ton match parfait ?</h1><div class="who">Choisis-en une seule.</div><div class="grid">${P.map((p, k) => `<button class="tile" data-k="${k}" style="background:linear-gradient(155deg,${p.g[0]},${p.g[1]});animation-delay:${k * .06}s">${avatarHTML(p)}${p.n}</button>`).join("")}</div></div>`)) {
-        document.querySelectorAll(".tile").forEach(b => b.onclick = () => {
-          mk = +b.dataset.k;
-          burst(["💘", "💖", "✨", P[mk].e]);
-          sendPresence({ k: mk });
-          last = ""; render();
-        });
-      }
-    } else {
-      const p = P[mk];
-      set(`<div class="panel"><div class="match">${[..."💘❤️💖💕💗"].map((h, i) => `<span class="heart" style="left:${10 + i * 20}%;animation-delay:${i * .5}s;font-size:${22 + i * 4}px">${h}</span>`).join("")}<h1>It’s a match !</h1><div>Toi et ${p.n} vous plaisez mutuellement</div><div class="av"><span class="av-box"><i>🙂</i></span>${avatarHTML(p)}</div><div class="bub">${ne(p.m)}</div></div><div class="who" style="text-align:center">Regarde le tableau pour le verdict final.</div></div>`);
-    }
-  }
+    render();
+  }, 380);
 }
 
-function sendPresence(data) {
-  STATE = getState();
-  if (!STATE.pres) STATE.pres = {};
-  STATE.pres[MY_ID] = { name: PS, sid: STATE.ses.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
-  saveState(STATE);
-}
-
-function bind() {
+function bindSwipe() {
   const c = $(".card"); if (!c) return;
   let x0 = null, y0 = 0, pid = null;
   const baseShadow = "0 28px 64px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.18)";
 
   c.onpointerdown = e => {
-    if (sw[STATE.ses.i]) return;
     x0 = e.clientX; y0 = e.clientY; pid = e.pointerId; dragging = true;
     try { c.setPointerCapture(pid) } catch (_) { }
     c.style.transition = "none"; c.style.animation = "none";
@@ -750,9 +442,9 @@ function bind() {
     const d = (e ? e.clientX : x0) - x0, u = y0 - (e ? e.clientY : y0);
     try { if (pid !== null) c.releasePointerCapture(pid) } catch (_) { }
     x0 = null; pid = null; dragging = false;
-    if (u > 105 && Math.abs(d) < 80) vote("super");
-    else if (d > 95) vote("like");
-    else if (d < -95) vote("nope");
+    if (u > 105 && Math.abs(d) < 80) nextCard("super");
+    else if (d > 95) nextCard("like");
+    else if (d < -95) nextCard("nope");
     else {
       c.style.transition = "transform .28s cubic-bezier(.2,1.5,.4,1),box-shadow .2s";
       c.style.transform = ""; c.style.boxShadow = baseShadow;
@@ -761,184 +453,6 @@ function bind() {
   };
   c.onpointerup = end;
   c.onpointercancel = end;
-}
-
-function vote(k) {
-  if (STATE.ses.mode !== "vote" || sw[STATE.ses.i]) return;
-  const c = $(".card"), i = STATE.ses.i, x = k === "nope" ? -1 : 1;
-  sw[i] = k; dragging = false;
-  if (k === "super") burst(["⭐", "💙", "✨"]);
-  if (c) {
-    c.style.animation = "none";
-    c.style.transition = "transform .42s cubic-bezier(.22,1,.36,1),opacity .38s";
-    c.style.transform = k === "super" ? "translate3d(0,-125%,0) scale(.9)" : `translate3d(${x * 135}%,20px,0) rotate(${x * 25}deg)`;
-    c.style.opacity = 0;
-  }
-  sendPresence({});
-  setTimeout(() => { last = ""; render() }, 380);
-}
-
-function join() {
-  const z = $("#pz");
-  PS = ((z && z.value) || "").trim().slice(0, 20) || "Anonyme";
-  ph = "play";
-  sw = {};
-  mk = null;
-  sendPresence({});
-  last = ""; render();
-}
-
-function board() {
-  const md = STATE.ses.mode, p = P[STATE.ses.i], players = pl(), n = players.length, t = tally(); let h, after;
-  const joinLink = location.href.split("#")[0] + "#join";
-
-  if (md === "lobby") {
-    const centerContent = n === 0
-      ? `<div class="radar-zone">
-          <div class="radar">
-            <span></span><span></span><span></span>
-            <i class="orbit-tag t1">♥</i>
-            <i class="orbit-tag t2">★</i>
-            <i class="orbit-tag t3">✕</i>
-            <b>${SVG.flame}</b>
-          </div>
-          <p>En attente des participants…</p>
-          <small>Scanne le QR code à gauche ou ouvre ce lien sur ton téléphone</small>
-        </div>`
-      : `<div class="p-grid">${playerCards(players)}</div>`;
-
-    h = `<div class="lobby-wrap">
-      <div class="box qr-col">
-        <div class="live-pill"><span class="dot"></span>Session hôte active</div>
-        <div class="qr-wrap"><div class="qr">${qr(joinLink)}</div></div>
-        <div class="link-row">
-          <input class="lk" id="lk" value="${esc(joinLink)}" aria-label="Lien de la séance">
-          <button class="cp" id="cp" title="Copier le lien">📋 Copier</button>
-        </div>
-        <div class="steps">
-          <div><span>📱</span>1. Scanne</div>
-          <div><span>✍️</span>2. Pseudo</div>
-          <div><span>💘</span>3. Swipe</div>
-        </div>
-      </div>
-
-      <div class="lobby-main">
-        <div class="box players-box">
-          <div class="l-head">
-            <div>
-              <h2>Scanne et choisis un pseudo</h2>
-              <div class="l-sub">Les participants connectés s’affichent en direct ci-dessous</div>
-            </div>
-            <div class="count-badge">🔥 ${n} connecté${n > 1 ? "s" : ""}</div>
-          </div>
-          ${centerContent}
-        </div>
-
-        <div class="guide-bar">
-          <div class="box g-item">
-            <div class="g-ic r">✕</div>
-            <div class="g-txt"><b>Glisse à gauche · NOPE</b><span>Pas pour ton infra</span></div>
-          </div>
-          <div class="box g-item">
-            <div class="g-ic b">★</div>
-            <div class="g-txt"><b>Glisse en haut · SUPER LIKE</b><span>Gros coup de cœur</span></div>
-          </div>
-          <div class="box g-item">
-            <div class="g-ic g">♥</div>
-            <div class="g-txt"><b>Glisse à droite · LIKE</b><span>Ça match à 100 %</span></div>
-          </div>
-        </div>
-
-        <div class="ctl">
-          <button class="go" id="a1">Démarrer le swipe</button>
-          <button class="go g2" id="a2">Nouvelle séance</button>
-        </div>
-      </div>
-    </div>`;
-    after = () => {
-      const lk = $("#lk"), cp = $("#cp");
-      if (lk) lk.onchange = e => { last = ""; render() };
-      if (cp) cp.onclick = async () => {
-        try { await navigator.clipboard.writeText(joinLink); cp.textContent = "✅ Copié"; setTimeout(() => cp.textContent = "📋 Copier", 1600) } catch (_) { }
-      };
-    };
-  }
-  else if (md === "vote") {
-    h = `<div class="board">${cardHTML(p, false)}<div class="side">
-      <h2>Profil ${STATE.ses.i + 1} / ${P.length}</h2>
-      <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
-      <div class="bar"><i style="width:${n ? 100 * t.n / n : 0}%;background:var(--grad)"></i></div>
-      <div class="who" style="font-weight:700;margin-top:8px">Joueurs connectés (${n}) :</div>
-      <div class="p-grid" style="margin-bottom:10px">${playerCards(players)}</div>
-      <div class="chips">${chipsOf(players.filter(x => vt(x, STATE.ses.i)))}</div>
-      <div class="ctl"><button class="go" id="a1">Voir les matchs maintenant</button></div>
-    </div></div>`;
-  }
-  else if (md === "stats") {
-    const mt = t.like.length + t.sup.length, tot = Math.max(1, t.n),
-      rw = (l, a, c) => `<div class="row"><span>${l}</span><span>${a.length} · ${Math.round(100 * a.length / tot)} %</span></div><div class="bar"><i style="width:${100 * a.length / tot}%;background:${c}"></i></div><div class="nm">${names(a)}</div>`;
-    h = `<div class="board">${cardHTML(p, false)}<div class="side">
-      <h2>${mt} match${mt > 1 ? "s" : ""} · ✕ ${t.nope.length} râteau${t.nope.length > 1 ? "x" : ""}</h2>
-      ${rw("♥ Likes", t.like, "var(--green)")}
-      ${rw("★ Super likes", t.sup, "var(--blue)")}
-      ${rw("✕ Passées", t.nope, "var(--red)")}
-      <div class="ctl"><button class="go" id="a1">${STATE.ses.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
-    </div></div>`;
-  }
-  else {
-    const ms = picks(), cnt = k => ms.filter(x => x.presence.k === k), mx = Math.max(0, ...P.map((_, k) => cnt(k).length));
-    if (md === "match") {
-      h = `<div class="side" style="flex:1">
-        <h2>Ton match parfait : ${ms.length} / ${n} ont choisi</h2>
-        ${P.map((q, k) => { const a = cnt(k); return `<div class="row"><span>${q.e} ${q.n}</span><span>${a.length}</span></div><div class="bar"><i style="width:${100 * a.length / Math.max(1, mx)}%;background:var(--grad)"></i></div><div class="nm">${names(a)}</div>` }).join("")}
-        <div class="ctl"><button class="go" id="a1">Terminer</button></div>
-      </div>`;
-    } else {
-      const w = P.map((q, k) => ({ q, a: cnt(k) })).filter(x => x.a.length && x.a.length === mx);
-      h = `<div class="side" style="flex:1">
-        <h2>Match de la salle : ${w.map(x => x.q.e + " " + x.q.n).join(" + ") || "—"}</h2>
-        ${w.map(x => `<div class="winner-box" style="background:linear-gradient(135deg,${x.q.g[0]},${x.q.g[1]})">${avatarHTML(x.q)}<div><h3>🏆 ${x.q.n} (${x.q.a})</h3><p>${ne(x.q.m)}</p></div></div>`).join("")}
-        <div class="who">Tous les joueurs ont été déconnectés de la salle.</div>
-        ${P.map((q, k) => { const a = cnt(k); return a.length ? `<div class="row"><span>${q.e} ${q.n}</span><span>${a.length}</span></div><div class="nm">${names(a)}</div>` : "" }).join("")}
-        <div class="ctl"><button class="go" id="a2">Nouvelle séance</button></div>
-      </div>`;
-    }
-  }
-  if (set(h)) {
-    const a1 = $("#a1"), a2 = $("#a2");
-    if (a1) a1.onclick = adv;
-    if (a2) a2.onclick = resetSession;
-    if (after) after();
-  }
-}
-
-function resetSession() {
-  STATE = getState();
-  STATE.ses = { sid: sid(), mode: "lobby", i: 0 };
-  STATE.pres = {};
-  saveState(STATE);
-  last = "";
-  render();
-}
-
-function setSes(p) {
-  STATE = getState();
-  const prev = STATE.ses.mode;
-  STATE.ses = { ...STATE.ses, ...p };
-  saveState(STATE);
-  last = "";
-  render();
-  if (STATE.ses.mode === "end" && prev !== "end") {
-    burst(["🏆", "💘", "🔥", "🎉", "✨"]);
-  }
-}
-
-function adv() {
-  const md = STATE.ses.mode;
-  if (md === "lobby") setSes({ mode: "vote", i: 0 });
-  else if (md === "vote") setSes({ mode: "stats" });
-  else if (md === "stats") { STATE.ses.i < P.length - 1 ? setSes({ mode: "vote", i: STATE.ses.i + 1 }) : setSes({ mode: "match" }) }
-  else if (md === "match") setSes({ mode: "end" });
 }
 </script>
 </body>
