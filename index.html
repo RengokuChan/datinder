@@ -478,7 +478,7 @@ const P = [
   {img:"img/natik.png", e:"🧜‍♀️", n:"Natick", a:"35 m", loc:"📍 À 35 m sous la mer, au large de l’Écosse", g:["#0b5fd6","#12c2e9"], bio:"Petite mais profonde : 12 baies, 864 serveurs. C’est pas la taille qui compte, c’est ce qu’il y a dedans. Toujours bien humide… mais si c’est trop humide, ça marche moins bien. Pour une fois. 😏", t:["🌊 Plongée","🤫 Discrète","💦 Humide"], m:"Viens, on plonge ensemble. 🌊"},
   {img:"img/nordique.png", e:"🧊", n:"La Nordique", a:"Arctique", loc:"📍 À Hamina, Finlande, au bord de la Baltique", g:["#3b4cca","#8fd3f4"], bio:"Froide au premier abord, mais elle adore qu’on lui souffle dessus et qu’on l’arrose d’eau de mer. Ex-usine de papier, elle sait rester propre : jamais de contact direct sans échangeur. Il faut savoir se protéger. 😉", t:["❄️ Free cooling","🌿 Énergie verte","📜 Ex-usine de papier"], m:"J’ai les pieds froids, mais le cœur au chaud. ❄️"},
   {img:"img/forteresse.png", e:"🛡️", n:"La Forteresse", a:"18 ans", loc:"📍 À 30 m sous le granit de Stockholm", g:["#232526","#5b6770"], bio:"Difficile à avoir : badge, sas, portes de 40 cm. Elle demande tes empreintes avant le premier rendez-vous. Mais une fois dedans, elle tient la distance : deux moteurs de sous-marin en secours. 😎", t:["☢️ Ex-abri antiatomique","🔐 Biométrie","🕶️ Style James Bond"], m:"Pas besoin de frapper. Mais prépare ton badge. 🔐"},
-  {img:"img/reveuse.jpg", e:"🚀", n:"La Rêveuse", a:"800 km", loc:"📍 À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅", t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"], m:"Je t’appelle depuis l’orbite. Ne coupe pas. 🛰️"},
+  {img:"img/reveuse.jpg", e:"🚀", n:"La Rêveuse", a:"800 km", loc:"📍 À 800 km de toi, en orbite", g:["#1a0b3b","#7b2ff7"], bio:"Les yeux dans les étoiles, la tête à 800 km. Je t’ai envoyé un haïku depuis l’orbite. Petit défaut : je tiens 15 minutes, puis j’ai besoin d’une pause pour me refroidir. Tu reconnais quelqu’un ? 😅", t:["🛰️ En orbite","☀️ Solaire illimité","⏱️ 15 min chrono"], m:"J’appelle depuis l’orbite. Ne coupe pas. 🛰️"},
   {img:"img/genereuse.png", e:"🏅", n:"La Généreuse", a:"Médaillée", loc:"📍 Près de Paris, à deux pas de chez toi", g:["#f12711","#f5af19"], bio:"Médaillée olympique 🏅 j’ai chauffé la piscine des JO 2024. Chaude toute l’année, je ne garde rien pour moi. Je cherche quelqu’un qui sait se jeter à l’eau. 💦", t:["🔥 Toujours chaude","🏊 Chauffe les piscines","🏠 1 000 logements"], m:"Chez moi, on partage tout. Même la chaleur. 🔥"}
 ];
 
@@ -494,43 +494,35 @@ const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const ne = s => String(s).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu,"").replace(/\s+([.,!?])/g, "$1").replace(/\s+/g, " ").trim();
 const sid = () => Math.random().toString(36).slice(2, 8);
 
-let MY_ID = localStorage.getItem("dt_client_id") || sid();
-localStorage.setItem("dt_client_id", MY_ID);
+let MY_ID = localStorage.getItem("dt_id") || sid();
+localStorage.setItem("dt_id", MY_ID);
 
 let PS = "", ph = "intro", sw = {}, mk = null, last = "", dragging = false;
 
-// Canal de communication instantané entre fenêtres / onglets / appareils locaux
-const bc = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('datinder_channel') : null;
-
-function getStore() {
+function getState() {
   try {
-    const raw = localStorage.getItem("datinder_state");
-    if (raw) return JSON.parse(raw);
+    const d = localStorage.getItem("dt_state_v2");
+    if (d) return JSON.parse(d);
   } catch(e){}
-  return {
-    hostId: null,
-    ses: { mode: "lobby", i: 0, sid: sid() },
-    pres: {}
-  };
+  return { host: MY_ID, ses: { mode: "lobby", i: 0, sid: sid() }, pres: {} };
 }
 
-function saveStore(st) {
+function saveState(st) {
   try {
-    localStorage.setItem("datinder_state", JSON.stringify(st));
-    if (bc) bc.postMessage(st);
+    localStorage.setItem("dt_state_v2", JSON.stringify(st));
   } catch(e){}
 }
 
-let STORE = getStore();
+let STATE = getState();
 
-// Si l'URL contient #join ou un hash, ou si un hôte existe déjà et qu'on n'est pas cet hôte, on se comporte en client
+// Si l'URL contient #join ou si l'ID d'hôte enregistré n'est pas le nôtre et qu'on vient d'arriver
 function isHost() {
   if (location.hash.includes("join")) return false;
-  if (!STORE.hostId) {
-    STORE.hostId = MY_ID;
-    saveStore(STORE);
+  if (!STATE.host) {
+    STATE.host = MY_ID;
+    saveState(STATE);
   }
-  return STORE.hostId === MY_ID;
+  return STATE.host === MY_ID;
 }
 
 function initApp() {
@@ -542,36 +534,26 @@ function initApp() {
     };
   }
 
-  // Écoute instantanée via BroadcastChannel
-  if (bc) {
-    bc.onmessage = (e) => {
-      if (e.data) {
-        STORE = e.data;
-        render();
-      }
-    };
-  }
-
-  // Écoute de secours multi-onglets storage
+  // Écoute des modifications inter-onglets et inter-appareils
   window.addEventListener("storage", e => {
-    if (e.key === "datinder_state" && e.newValue) {
+    if (e.key === "dt_state_v2" && e.newValue) {
       try {
-        STORE = JSON.parse(e.newValue);
+        STATE = JSON.parse(e.newValue);
         render();
       } catch(err){}
     }
   });
 
-  // Battement de cœur de synchronisation (toutes les 200ms)
+  // Rafraîchissement automatique permanent toutes les 200ms
   setInterval(() => {
-    const fresh = getStore();
-    if (JSON.stringify(fresh) !== JSON.stringify(STORE)) {
-      STORE = fresh;
+    const fresh = getState();
+    if (JSON.stringify(fresh) !== JSON.stringify(STATE)) {
+      STATE = fresh;
       render();
     }
   }, 200);
 
-  start();
+  render();
 }
 
 if (document.readyState === "loading") {
@@ -595,11 +577,11 @@ function burst(list = ["💘", "🔥", "✨", "💖", "🏆"]) {
 }
 
 const pl = () => {
-  STORE = getStore();
-  return Object.keys(STORE.pres || {}).map(id => ({ peer: id, presence: STORE.pres[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === STORE.ses.sid);
+  STATE = getState();
+  return Object.keys(STATE.pres || {}).map(id => ({ peer: id, presence: STATE.pres[id] })).filter(p => p.presence && p.presence.name && p.presence.sid === STATE.ses.sid);
 };
 const vt = (p, i) => (p.presence.v || [])[i];
-const tally = () => { const s = pl(), k = STORE.ses.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
+const tally = () => { const s = pl(), k = STATE.ses.i, g = t => s.filter(x => vt(x, k) === t); return { like: g("like"), sup: g("super"), nope: g("nope"), n: s.filter(x => vt(x, k)).length } };
 const picks = () => pl().filter(x => typeof x.presence.k === "number");
 const names = a => a.map(x => esc(String(x.presence.name).slice(0, 20))).join(", ") || "—";
 const chipsOf = a => a.map((x, idx) => `<b style="animation-delay:${idx * .05}s">🔥 ${esc(String(x.presence.name).slice(0, 20))}</b>`).join("");
@@ -632,7 +614,7 @@ const avatarHTML = p => p.img
   ? `<span class="av-box"><img src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>${p.e}</i></span>`
   : `<span class="av-box"><i>${p.e}</i></span>`;
 
-function cardHTML(p, live, idx = STORE.ses.i) {
+function cardHTML(p, live, idx = STATE.ses.i) {
   const segs = P.map((_, j) => `<i class="${j === idx ? "on" : j < idx ? "past" : ""}"></i>`).join("");
   const pic = p.img ? `<img class="pic" src="${esc(p.img)}" alt="${esc(p.n)}" onload="this.parentElement.classList.add('has-pic')" onerror="this.remove()">` : "";
   return `<div class="card" style="background:linear-gradient(155deg,${p.g[0]},${p.g[1]})">
@@ -655,7 +637,7 @@ function set(h) { if (dragging || h === last) return false; last = h; const m = 
 const hero = (icon, h, w, extra = "") => `<div class="panel hero"><div class="big"><i>${icon}</i></div><h1>${h}</h1><div class="who">${w || ""}</div>${extra}</div>`;
 
 function render() {
-  STORE = getStore();
+  STATE = getState();
   if (isHost()) {
     const appEl = $("#app");
     if (appEl && !appEl.classList.contains("wide")) appEl.classList.add("wide");
@@ -667,8 +649,8 @@ function render() {
   }
   const c = $("#cnt");
   if (!c) return;
-  if (!isHost() && ph === "play" && STORE.ses.mode === "vote") {
-    c.textContent = (STORE.ses.i + 1) + " / " + P.length;
+  if (!isHost() && ph === "play" && STATE.ses.mode === "vote") {
+    c.textContent = (STATE.ses.i + 1) + " / " + P.length;
   } else if (isHost()) {
     const n = pl().length;
     c.innerHTML = `<span class="dot"></span>${n} joueur${n > 1 ? "s" : ""}`;
@@ -695,13 +677,13 @@ function phone() {
     }
     return;
   }
-  const md = STORE.ses.mode;
+  const md = STATE.ses.mode;
   if (md === "lobby") {
     set(hero("🔥", "Prêt à swiper, " + esc(PS), "Tu es connecté au grand écran. La séance va démarrer !"));
   }
   else if (md === "vote") {
-    if (sw[STORE.ses.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
-    else if (set(cardHTML(P[STORE.ses.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
+    if (sw[STATE.ses.i]) set(hero("✅", "Swipe enregistré", "Regarde l’écran principal en attendant les autres."));
+    else if (set(cardHTML(P[STATE.ses.i], true) + `<div class="btns"><button aria-label="Passer" id="bn">${SVG.nope}</button><button class="sm" aria-label="Super like" id="bs">${SVG.star}</button><button aria-label="Liker" id="bl">${SVG.like}</button></div>`)) {
       const bn = $("#bn"), bl = $("#bl"), bs = $("#bs");
       if (bn) bn.onclick = () => vote("nope");
       if (bl) bl.onclick = () => vote("like");
@@ -710,7 +692,7 @@ function phone() {
     }
   }
   else if (md === "stats") {
-    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[STORE.ses.i].n + " s’affichent."));
+    set(hero("👀", "Regarde le tableau", "Les matchs de " + P[STATE.ses.i].n + " s’affichent."));
   }
   else if (md === "match") {
     if (mk === null) {
@@ -730,10 +712,10 @@ function phone() {
 }
 
 function sendPresence(data) {
-  STORE = getStore();
-  if (!STORE.pres) STORE.pres = {};
-  STORE.pres[MY_ID] = { name: PS, sid: STORE.ses.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
-  saveStore(STORE);
+  STATE = getState();
+  if (!STATE.pres) STATE.pres = {};
+  STATE.pres[MY_ID] = { name: PS, sid: STATE.ses.sid || "0", v: P.map((_, j) => sw[j] || null), k: mk, ...data };
+  saveState(STATE);
 }
 
 function bind() {
@@ -742,7 +724,7 @@ function bind() {
   const baseShadow = "0 28px 64px -14px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.18)";
 
   c.onpointerdown = e => {
-    if (sw[STORE.ses.i]) return;
+    if (sw[STATE.ses.i]) return;
     x0 = e.clientX; y0 = e.clientY; pid = e.pointerId; dragging = true;
     try { c.setPointerCapture(pid) } catch (_) { }
     c.style.transition = "none"; c.style.animation = "none";
@@ -782,8 +764,8 @@ function bind() {
 }
 
 function vote(k) {
-  if (STORE.ses.mode !== "vote" || sw[STORE.ses.i]) return;
-  const c = $(".card"), i = STORE.ses.i, x = k === "nope" ? -1 : 1;
+  if (STATE.ses.mode !== "vote" || sw[STATE.ses.i]) return;
+  const c = $(".card"), i = STATE.ses.i, x = k === "nope" ? -1 : 1;
   sw[i] = k; dragging = false;
   if (k === "super") burst(["⭐", "💙", "✨"]);
   if (c) {
@@ -807,7 +789,7 @@ function join() {
 }
 
 function board() {
-  const md = STORE.ses.mode, p = P[STORE.ses.i], players = pl(), n = players.length, t = tally(); let h, after;
+  const md = STATE.ses.mode, p = P[STATE.ses.i], players = pl(), n = players.length, t = tally(); let h, after;
   const joinLink = location.href.split("#")[0] + "#join";
 
   if (md === "lobby") {
@@ -883,12 +865,12 @@ function board() {
   }
   else if (md === "vote") {
     h = `<div class="board">${cardHTML(p, false)}<div class="side">
-      <h2>Profil ${STORE.ses.i + 1} / ${P.length}</h2>
+      <h2>Profil ${STATE.ses.i + 1} / ${P.length}</h2>
       <div class="who" style="font-size:clamp(18px,3vh,28px);font-weight:800;color:var(--ink)">${t.n} / ${n} ont swipé</div>
       <div class="bar"><i style="width:${n ? 100 * t.n / n : 0}%;background:var(--grad)"></i></div>
       <div class="who" style="font-weight:700;margin-top:8px">Joueurs connectés (${n}) :</div>
       <div class="p-grid" style="margin-bottom:10px">${playerCards(players)}</div>
-      <div class="chips">${chipsOf(players.filter(x => vt(x, STORE.ses.i)))}</div>
+      <div class="chips">${chipsOf(players.filter(x => vt(x, STATE.ses.i)))}</div>
       <div class="ctl"><button class="go" id="a1">Voir les matchs maintenant</button></div>
     </div></div>`;
   }
@@ -900,7 +882,7 @@ function board() {
       ${rw("♥ Likes", t.like, "var(--green)")}
       ${rw("★ Super likes", t.sup, "var(--blue)")}
       ${rw("✕ Passées", t.nope, "var(--red)")}
-      <div class="ctl"><button class="go" id="a1">${STORE.ses.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
+      <div class="ctl"><button class="go" id="a1">${STATE.ses.i === P.length - 1 ? "Vote du match parfait" : "Profil suivant"}</button></div>
     </div></div>`;
   }
   else {
@@ -931,36 +913,32 @@ function board() {
 }
 
 function resetSession() {
-  STORE = getStore();
-  STORE.ses = { sid: sid(), mode: "lobby", i: 0 };
-  STORE.pres = {};
-  saveStore(STORE);
+  STATE = getState();
+  STATE.ses = { sid: sid(), mode: "lobby", i: 0 };
+  STATE.pres = {};
+  saveState(STATE);
   last = "";
   render();
 }
 
 function setSes(p) {
-  STORE = getStore();
-  const prev = STORE.ses.mode;
-  STORE.ses = { ...STORE.ses, ...p };
-  saveStore(STORE);
+  STATE = getState();
+  const prev = STATE.ses.mode;
+  STATE.ses = { ...STATE.ses, ...p };
+  saveState(STATE);
   last = "";
   render();
-  if (STORE.ses.mode === "end" && prev !== "end") {
+  if (STATE.ses.mode === "end" && prev !== "end") {
     burst(["🏆", "💘", "🔥", "🎉", "✨"]);
   }
 }
 
 function adv() {
-  const md = STORE.ses.mode;
+  const md = STATE.ses.mode;
   if (md === "lobby") setSes({ mode: "vote", i: 0 });
   else if (md === "vote") setSes({ mode: "stats" });
-  else if (md === "stats") { STORE.ses.i < P.length - 1 ? setSes({ mode: "vote", i: STORE.ses.i + 1 }) : setSes({ mode: "match" }) }
+  else if (md === "stats") { STATE.ses.i < P.length - 1 ? setSes({ mode: "vote", i: STATE.ses.i + 1 }) : setSes({ mode: "match" }) }
   else if (md === "match") setSes({ mode: "end" });
-}
-
-function start() {
-  render();
 }
 </script>
 </body>
